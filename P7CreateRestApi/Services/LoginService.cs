@@ -1,6 +1,6 @@
-﻿namespace P7CreateRestApi.Models
+﻿namespace P7CreateRestApi.Services
 {
-    public class LoginModel
+    public class LoginService
     {
         // TODO: implement properties needeed for login model.
     }

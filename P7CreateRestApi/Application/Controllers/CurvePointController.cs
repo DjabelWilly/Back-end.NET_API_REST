@@ -1,11 +1,11 @@
-using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
+using P7CreateRestApi.Entities;
 
-namespace Dot.Net.WebApi.Controllers
+namespace P7CreateRestApi.Application.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class CurveController : ControllerBase
+    public class CurvePointController : ControllerBase
     {
         // TODO: Inject Curve Point service
 
