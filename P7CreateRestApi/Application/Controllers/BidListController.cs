@@ -18,7 +18,7 @@ namespace P7CreateRestApi.Application.Controllers
 
 
         // Créer un BidList
-        [HttpPost ("create")]
+        [HttpPost]
         public async Task<IActionResult> Create([FromBody] BidListViewModel vm)
         {
             // Vérifie que le modèle est valide
@@ -46,7 +46,7 @@ namespace P7CreateRestApi.Application.Controllers
 
         // Vérifie les champs 'required', si valid -> appelle le service pour update et return BidList
         [HttpPut]
-        [Route("update/{id}")]
+        [Route("{id}")]
         public async Task<IActionResult> UpdateBid(int id, [FromBody] BidListViewModel vm)
         {
             if (!ModelState.IsValid)
