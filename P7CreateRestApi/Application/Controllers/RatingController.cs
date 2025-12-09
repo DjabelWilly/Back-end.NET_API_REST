@@ -15,15 +15,19 @@ namespace P7CreateRestApi.Application.Controllers
             _ratingService = ratingService;
         }
 
+
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll()
         {
             var list = await _ratingService.GetAllRatings();
             return Ok(list);
         }
 
-        // GET /rating/{id}
+
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById(int id)
         {
             var rating = await _ratingService.GetRatingById(id);
@@ -33,8 +37,9 @@ namespace P7CreateRestApi.Application.Controllers
             return Ok(rating);
         }
 
-        // POST /rating
         [HttpPost]
+        [ProducesResponseType(typeof(RatingViewModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromBody] RatingViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -44,8 +49,11 @@ namespace P7CreateRestApi.Application.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
-        // PUT /rating/{id}
+
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update(int id, [FromBody] RatingViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -54,16 +62,27 @@ namespace P7CreateRestApi.Application.Controllers
             if (vm.Id != id)
                 return BadRequest("Id mismatch");
 
+            var existing = await _ratingService.GetRatingById(id);
+            if (existing == null)
+                return NotFound();
+
             await _ratingService.UpdateRating(vm);
-            return NoContent();
+
+            return Ok(new { message = "update done successfully" });
         }
 
-        // DELETE /rating/{id}
+
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int id)
         {
+            var exists = await _ratingService.GetRatingById(id);
+            if (exists == null)
+                return NotFound();
+
             await _ratingService.DeleteRating(id);
-            return NoContent();
+            return Ok(new { message = "delete done successfully" });
         }
     }
 }
