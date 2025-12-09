@@ -9,7 +9,7 @@ namespace P7CreateRestApi.Application.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<RatingViewModel, Rating>();
+            CreateMap<RuleViewModel, Rule>();
         }
     }
 }

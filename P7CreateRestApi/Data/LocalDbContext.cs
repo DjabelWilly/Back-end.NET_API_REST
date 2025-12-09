@@ -12,7 +12,7 @@ namespace Dot.Net.WebApi.Data
             base.OnModelCreating(builder);
         }
 
-        public DbSet<Rating> Ratings { get; set; } = null!;
+        public DbSet<Rule> Rules { get; set; } = null!;
 
         public DbSet<User> Users { get; set; } = null!;
     }

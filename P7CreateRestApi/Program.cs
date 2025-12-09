@@ -9,8 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
 
 // Add services to the container.
-builder.Services.AddScoped<IRatingRepository, RatingRepository>();
-builder.Services.AddScoped<IRatingService, RatingService>();
+builder.Services.AddScoped<IRuleRepository, RuleRepository>();
+builder.Services.AddScoped<IRuleService, RuleService>();
 
 // AutoMapper 
 builder.Services.AddAutoMapper(typeof(MappingProfile));

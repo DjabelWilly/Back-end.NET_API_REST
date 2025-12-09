@@ -6,13 +6,13 @@ namespace P7CreateRestApi.Application.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class RatingController : ControllerBase
+    public class RuleController : ControllerBase
     {
-        private readonly IRatingService _ratingService;
+        private readonly IRuleService _ruleService;
 
-        public RatingController(IRatingService ratingService)
+        public RuleController(IRuleService ruleService)
         {
-            _ratingService = ratingService;
+            _ruleService = ruleService;
         }
 
 
@@ -20,7 +20,7 @@ namespace P7CreateRestApi.Application.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll()
         {
-            var list = await _ratingService.GetAllRatings();
+            var list = await _ruleService.GetAllRules();
             return Ok(list);
         }
 
@@ -30,22 +30,22 @@ namespace P7CreateRestApi.Application.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById(int id)
         {
-            var rating = await _ratingService.GetRatingById(id);
-            if (rating == null)
+            var rule = await _ruleService.GetRuleById(id);
+            if (rule == null)
                 return NotFound();
 
-            return Ok(rating);
+            return Ok(rule);
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(RatingViewModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(RuleViewModel), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Create([FromBody] RatingViewModel vm)
+        public async Task<IActionResult> Create([FromBody] RuleViewModel vm)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var created = await _ratingService.SaveRating(vm);
+            var created = await _ruleService.SaveRule(vm);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
@@ -54,7 +54,7 @@ namespace P7CreateRestApi.Application.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update(int id, [FromBody] RatingViewModel vm)
+        public async Task<IActionResult> Update(int id, [FromBody] RuleViewModel vm)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -62,11 +62,11 @@ namespace P7CreateRestApi.Application.Controllers
             if (vm.Id != id)
                 return BadRequest("Id mismatch");
 
-            var existing = await _ratingService.GetRatingById(id);
+            var existing = await _ruleService.GetRuleById(id);
             if (existing == null)
                 return NotFound();
 
-            await _ratingService.UpdateRating(vm);
+            await _ruleService.UpdateRule(vm);
 
             return Ok(new { message = "update done successfully" });
         }
@@ -77,11 +77,11 @@ namespace P7CreateRestApi.Application.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int id)
         {
-            var exists = await _ratingService.GetRatingById(id);
+            var exists = await _ruleService.GetRuleById(id);
             if (exists == null)
                 return NotFound();
 
-            await _ratingService.DeleteRating(id);
+            await _ruleService.DeleteRule(id);
             return Ok(new { message = "delete done successfully" });
         }
     }
