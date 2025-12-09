@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using P7CreateRestApi.Application.ViewModels;
 using P7CreateRestApi.Entities;
+using P7CreateRestApi.Services;
 
 namespace P7CreateRestApi.Application.Controllers
 {
@@ -7,53 +9,80 @@ namespace P7CreateRestApi.Application.Controllers
     [Route("[controller]")]
     public class TradeController : ControllerBase
     {
-        // TODO: Inject Trade service
+        private readonly ITradeService _tradeService;
 
-        [HttpGet]
-        [Route("list")]
-        public IActionResult Home()
+        public TradeController(ITradeService tradeService)
         {
-            // TODO: find all Trade, add to model
-            return Ok();
+            _tradeService = tradeService;
         }
 
         [HttpGet]
-        [Route("add")]
-        public IActionResult AddTrade([FromBody]Trade trade)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllTrades()
         {
-            return Ok();
+            var list = await _tradeService.GetAllTrades();
+            return Ok(list);
         }
 
-        [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]Trade trade)
-        {
-            // TODO: check data valid and save to db, after saving return Trade list
-            return Ok();
-        }
 
-        [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetById(int id)
         {
-            // TODO: get Trade by Id and to model then show to the form
-            return Ok();
+            var trade = await _tradeService.GetTradeById(id);
+            if (trade == null)
+                return NotFound();
+
+            return Ok(trade);
         }
 
         [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateTrade(int id, [FromBody] Trade trade)
+        [ProducesResponseType(typeof(TradeViewModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Create([FromBody] TradeViewModel vm)
         {
-            // TODO: check required fields, if valid call service to update Trade and return Trade list
-            return Ok();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var created = await _tradeService.SaveTrade(vm);
+
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
-        [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteTrade(int id)
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Update(int id, [FromBody] TradeViewModel vm)
         {
-            // TODO: Find Trade by Id and delete the Trade, return to Trade list
-            return Ok();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (vm.Id != id)
+                return BadRequest("Id mismatch");
+
+            var existing = await _tradeService.GetTradeById(id);
+            if (existing == null)
+                return NotFound();
+
+            await _tradeService.UpdateTrade(vm);
+
+            return Ok(new { message = "update done successfully" });
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var exists = await _tradeService.GetTradeById(id);
+            if (exists == null)
+                return NotFound();
+
+            await _tradeService.DeleteTrade(id);
+            return Ok(new { message = "delete done successfully" });
         }
     }
 }

@@ -4,6 +4,7 @@ using Dot.Net.WebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace P7CreateRestApi.Migrations
 {
     [DbContext(typeof(LocalDbContext))]
-    partial class LocalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251209143756_AddTables")]
+    partial class AddTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -168,7 +170,7 @@ namespace P7CreateRestApi.Migrations
                     b.ToTable("Ratings");
                 });
 
-            modelBuilder.Entity("P7CreateRestApi.Entities.Rule", b =>
+            modelBuilder.Entity("P7CreateRestApi.Entities.RuleName", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -202,7 +204,7 @@ namespace P7CreateRestApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Rules");
+                    b.ToTable("RuleNames");
                 });
 
             modelBuilder.Entity("P7CreateRestApi.Entities.Trade", b =>
