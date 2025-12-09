@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Application.ViewModels;
-using P7CreateRestApi.Entities;
 using P7CreateRestApi.Services;
 
 namespace P7CreateRestApi.Application.Controllers
@@ -16,56 +15,79 @@ namespace P7CreateRestApi.Application.Controllers
             _curvePointService = curvePointService;
         }
 
-        // GET: /curvepoint
+
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllCurvePoints()
         {
             var result = await _curvePointService.GetAllCurvePoints();
             return Ok(result);
         }
 
-        // GET: /curvepoint/{id}
+
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(CurvePointViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetCurvePointById(int id)
         {
             var result = await _curvePointService.GetCurvePointById(id);
+
             if (result == null)
                 return NotFound();
 
             return Ok(result);
         }
 
-        // POST: /curvepoint
+
         [HttpPost]
+        [ProducesResponseType(typeof(CurvePointViewModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromBody] CurvePointViewModel vm)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var created = await _curvePointService.SaveCurvePoint(vm);
+
             return CreatedAtAction(nameof(GetCurvePointById), new { id = created.Id }, created);
         }
 
-        // PUT: /curvepoint/{id}
+
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update(int id, [FromBody] CurvePointViewModel vm)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             if (id != vm.Id)
-                return BadRequest("L'Id ne correspond pas.");
+                return BadRequest("Id mismatch");
+
+            // Vérification existence pour éviter les 500
+            var existing = await _curvePointService.GetCurvePointById(id);
+            if (existing == null)
+                return NotFound();
 
             await _curvePointService.UpdateCurvePoint(vm);
-            return NoContent();
+
+            return Ok(new { message = "update done successfully" });
         }
 
-        // DELETE: /curvepoint/{id}
+
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int id)
         {
+            var exists = await _curvePointService.GetCurvePointById(id);
+            if (exists == null)
+                return NotFound();
+
             await _curvePointService.DeleteCurvePoint(id);
-            return NoContent();
+
+            return Ok(new { message = "delete done successfully" });
         }
     }
 }
