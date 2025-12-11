@@ -8,7 +8,7 @@ namespace P7CreateRestApi.Services
         Task<IEnumerable<Rating>> GetAllRatings();
         Task<Rating?> GetRatingById(int id);
         Task<Rating> SaveRating(RatingViewModel vm);
-        Task UpdateRating(RatingViewModel vm);
+        Task<Rating?> UpdateRating(RatingViewModel vm);
         Task DeleteRating(int id);
     }
 }

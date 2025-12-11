@@ -29,10 +29,11 @@ namespace P7CreateRestApi.Data.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task Update(Rating entity)
+        public async Task<Rating?> Update(Rating entity)
         {
             _context.Ratings.Update(entity);
             await _context.SaveChangesAsync();
+            return entity;
         }
 
         public async Task Delete(Rating entity)

@@ -33,18 +33,18 @@ namespace P7CreateRestApi.Services
             return entity;
         }
 
-        public async Task UpdateRating(RatingViewModel vm)
+        public async Task<Rating?> UpdateRating(RatingViewModel vm)
         {
             var existing = await _ratingRepository.GetRatingById(vm.Id);
             if (existing == null)
                 throw new KeyNotFoundException($"Rating {vm.Id} introuvable.");
 
-            existing.MoodysRating = vm.MoodysRating;
-            existing.SandPRating = vm.SandPRating;
-            existing.FitchRating = vm.FitchRating;
-            existing.OrderNumber = vm.OrderNumber;
+            // mappe les valeurs de vm dans l'entity existante dans la db.
+            _mapper.Map(vm, existing);
 
-            await _ratingRepository.Update(existing);
+            var updatedRating = await _ratingRepository.Update(existing);
+
+            return updatedRating;
         }
 
         public async Task DeleteRating(int id)
