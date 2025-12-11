@@ -8,7 +8,7 @@ namespace P7CreateRestApi.Services
         Task<IEnumerable<Rule>> GetAllRules();
         Task<Rule?> GetRuleById(int id);
         Task<Rule> SaveRule(RuleViewModel vm);
-        Task UpdateRule(RuleViewModel vm);
+        Task<Rule?> UpdateRule(RuleViewModel vm);
         Task DeleteRule(int id);
     }
 }

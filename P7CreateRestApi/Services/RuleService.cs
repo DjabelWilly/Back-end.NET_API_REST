@@ -33,19 +33,17 @@ namespace P7CreateRestApi.Services
             return entity;
         }
 
-        public async Task UpdateRule(RuleViewModel vm)
+        public async Task<Rule?> UpdateRule(RuleViewModel vm)
         {
             var existing = await _ruleRepository.GetRuleById(vm.Id);
             if (existing == null)
                 throw new KeyNotFoundException($"Rule {vm.Id} introuvable.");
 
-            existing.Name = vm.Name;
-            existing.Description = vm.Description;
-            existing.Json = vm.Json;
-            existing.SqlStr = vm.SqlStr;
-            existing.SqlPart = vm.SqlPart;
+           _mapper.Map(vm, existing);
 
             await _ruleRepository.Update(existing);
+
+            return existing;
         }
 
         public async Task DeleteRule(int id)

@@ -7,7 +7,7 @@ namespace P7CreateRestApi.Data.Repositories
         Task<IEnumerable<Rule>> GetAllRules();
         Task<Rule?> GetRuleById(int id);
         Task SaveRule(Rule entity);
-        Task Update(Rule entity);
+        Task<Rule?> Update(Rule entity);
         Task Delete(Rule entity);
     }
 }

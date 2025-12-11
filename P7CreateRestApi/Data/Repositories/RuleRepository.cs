@@ -29,10 +29,11 @@ namespace P7CreateRestApi.Data.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task Update(Rule entity)
+        public async Task<Rule?> Update(Rule entity)
         {
             _context.Rules.Update(entity);
             await _context.SaveChangesAsync();
+            return entity;
         }
 
         public async Task Delete(Rule entity)
