@@ -6,9 +6,9 @@ namespace P7CreateRestApi.Services
     public interface ICurvePointService
     {
         Task<IEnumerable<CurvePoint>> GetAllCurvePoints();
-        Task<CurvePoint> GetCurvePointById(int id);
+        Task<CurvePoint?> GetCurvePointById(int id);
         Task<CurvePoint> SaveCurvePoint(CurvePointViewModel vm);
-        Task UpdateCurvePoint(CurvePointViewModel vm);
+        Task<CurvePoint?> UpdateCurvePoint(CurvePointViewModel vm);
         Task DeleteCurvePoint(int id);
     }
 }

@@ -8,53 +8,24 @@ namespace P7CreateRestApi.Application.Controllers
     [Route("[controller]")]
     public class BidListController : ControllerBase
     {
-        private readonly IBidListService _bidListService;
 
-        public BidListController(IBidListService bidListService)
-        {
-            _bidListService = bidListService;
-        }
-
-
-        // Créer un BidList
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] BidListViewModel vm)
         {
-            // Vérifie que le modèle est valide
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState); // renvoie les erreurs de validation
-
-            // Appel du service l'entité via le service
-            var entityCreated = await _bidListService.SaveBidList(vm);
-
-            // Retourne l'objet sauvegardé avec un code HTTP 200 OK
-            return Ok(entityCreated);
+            return Ok();
         }
 
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBidById(int id)
         {
-            var result = await _bidListService.GetBidId(id);
-
-            if (result == null)
-                return NotFound();
-
-            return Ok(result);
+            return Ok();
         }
 
-        // Vérifie les champs 'required', si valid -> appelle le service pour update et return BidList
         [HttpPut]
         [Route("{id}")]
         public async Task<IActionResult> UpdateBid(int id, [FromBody] BidListViewModel vm)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (id != vm.Id)
-                return BadRequest("L'Id ne correspond pas.");
-
-            await _bidListService.UpdateBidList(vm);
 
             return Ok(vm);
         }
@@ -62,7 +33,6 @@ namespace P7CreateRestApi.Application.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBid(int id)
         {
-            await _bidListService.DeleteBidList(id);
             return NoContent();
         }
 

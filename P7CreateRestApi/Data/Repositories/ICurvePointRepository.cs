@@ -7,7 +7,7 @@ namespace P7CreateRestApi.Data.Repositories
         Task<IEnumerable<CurvePoint>> GetAllCurvePoints();
         Task<CurvePoint?> GetCurvePointById(int id);
         Task SaveCurvePoint(CurvePoint entity);
-        Task Update(CurvePoint entity);
+        Task<CurvePoint?> Update(CurvePoint entity);
         Task Delete(CurvePoint entity);
     }
 }

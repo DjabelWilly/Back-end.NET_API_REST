@@ -9,8 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
 
 // Add services to the container.
-builder.Services.AddScoped<IBidListRepository, BidListRepository>();
-builder.Services.AddScoped<IBidListService, BidListService>();
 builder.Services.AddScoped<ICurvePointRepository, CurvePointRepository>();
 builder.Services.AddScoped<ICurvePointService, CurvePointService>();
 

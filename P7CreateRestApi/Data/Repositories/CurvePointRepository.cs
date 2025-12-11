@@ -29,10 +29,11 @@ namespace P7CreateRestApi.Data.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task Update(CurvePoint entity)
+        public async Task<CurvePoint?> Update(CurvePoint entity)
         {
             _context.CurvePoints.Update(entity);
             await _context.SaveChangesAsync();
+            return entity;
         }
 
         public async Task Delete(CurvePoint entity)
