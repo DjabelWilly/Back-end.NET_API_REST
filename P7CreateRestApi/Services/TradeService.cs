@@ -33,7 +33,7 @@ namespace P7CreateRestApi.Services
             return entity;
         }
 
-        public async Task UpdateTrade(TradeViewModel vm)
+        public async Task<Trade?> UpdateTrade(TradeViewModel vm)
         {
             var existing = await _repository.GetTradeById(vm.Id);
             if (existing == null)
@@ -41,6 +41,7 @@ namespace P7CreateRestApi.Services
 
             _mapper.Map(vm, existing);
             await _repository.UpdateTrade(existing);
+            return existing;
         }
 
         public async Task DeleteTrade(int id)

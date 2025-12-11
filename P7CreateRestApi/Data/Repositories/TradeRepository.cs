@@ -30,10 +30,11 @@ namespace P7CreateRestApi.Data.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateTrade(Trade trade)
+        public async Task<Trade?> UpdateTrade(Trade trade)
         {
             _context.Trades.Update(trade);
             await _context.SaveChangesAsync();
+            return trade;
         }
 
         public async Task DeleteTrade(Trade trade)

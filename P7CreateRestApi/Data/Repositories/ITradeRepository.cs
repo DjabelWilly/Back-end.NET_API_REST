@@ -7,7 +7,7 @@ namespace P7CreateRestApi.Data.Repositories
         Task<IEnumerable<Trade>> GetAllTrades();
         Task<Trade?> GetTradeById(int id);
         Task SaveTrade(Trade trade);
-        Task UpdateTrade(Trade trade);
+        Task<Trade?> UpdateTrade(Trade trade);
         Task DeleteTrade(Trade trade);
     }
 }
