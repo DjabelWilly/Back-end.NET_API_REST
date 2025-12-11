@@ -1,3 +1,4 @@
+using System;
 using Dot.Net.WebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Entities;
@@ -13,69 +14,34 @@ namespace P7CreateRestApi.Data.Repositories
             _context = context;
         }
 
-        // Gestion de User == null
-        public User FindByUserName(string username)
-        {
-            var user = _context.Users
-                                 .FirstOrDefault(u => u.Username == username);
-
-            if (user == null)
-                throw new InvalidOperationException("User not found.");
-
-            return user;
-        }
-
-        public async Task<List<User>> FindAll()
+        public async Task<IEnumerable<User>> GetAll()
         {
             return await _context.Users.ToListAsync();
         }
 
-        // Methode implementée
-        public void Add(User user)
+        public async Task<User?> GetById(int id)
         {
-            if (user == null)
-                throw new ArgumentNullException(nameof(user));
-
-            _context.Users.Add(user);
-            _context.SaveChanges();
+            return await _context.Users.FindAsync(id);
         }
 
-        // Gestion de User == null
-        public User FindById(int id)
+        public async Task<User> Add(User entity)
         {
-            var user = _context.Users
-                               .FirstOrDefault(u => u.Id == id);
-
-            if (user == null)
-                throw new InvalidOperationException("User not found.");
-
-            return user;
+            _context.Users.Add(entity);
+            await _context.SaveChangesAsync();
+            return entity;
         }
 
-        // Ajout Modifier user
-        public void Update(User user)
+        public async Task<User?> Update(User entity)
         {
-            if (user == null)
-                throw new ArgumentNullException(nameof(user));
-
-            // Récupère l'utilisateur existant en base
-            var userToUpdate = FindById(user.Id);
-
-            // Mettre à jour
-            userToUpdate.Username = user.Username;
-
-            _context.SaveChanges();
+            _context.Users.Update(entity);
+            await _context.SaveChangesAsync();
+            return entity;
         }
 
-        // Ajout Suppression user
-        public void Delete(User user)
+        public async Task Delete(User entity)
         {
-            if (user == null)
-                throw new ArgumentNullException(nameof(user));
-
-           var userToDelete = FindById(user.Id);
-            _context.Remove(userToDelete);
-            _context.SaveChanges();
+            _context.Users.Remove(entity);
+            await _context.SaveChangesAsync();
         }
     }
 }

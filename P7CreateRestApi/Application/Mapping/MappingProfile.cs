@@ -9,8 +9,7 @@ namespace P7CreateRestApi.Application.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<BidListViewModel, BidList>();
-            CreateMap<TradeViewModel, Trade>();
+            CreateMap<UserViewModel, User>();
         }
     }
 }
