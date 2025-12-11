@@ -8,10 +8,11 @@ namespace P7CreateRestApi.Services
     {
         Task<BidList> SaveBidList(BidListViewModel vm);
 
-        Task UpdateBidList(BidListViewModel vm);
+        Task<BidList?> UpdateBidList(BidListViewModel vm);
 
-        Task<BidList> GetBidId(int id);
+        Task<BidList?> GetBidId(int id);
 
         Task DeleteBidList(int id);
     }
+
 }

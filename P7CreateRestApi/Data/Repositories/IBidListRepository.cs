@@ -8,7 +8,7 @@ namespace P7CreateRestApi.Data.Repositories
 
         Task<BidList?> GetBidListById(int id);
 
-        Task Update(BidList entity);
+        Task<BidList?> Update(BidList entity);
 
         Task Delete(BidList entity);
     }

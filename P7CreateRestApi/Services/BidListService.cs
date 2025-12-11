@@ -26,10 +26,10 @@ namespace P7CreateRestApi.Services
         }
 
         // Get(id)
-        public async Task<BidList> GetBidId(int id)
+        public async Task<BidList?> GetBidId(int id)
         {
             var entity = await _bidListRepository.GetBidListById(id);
-            
+
             if (entity == null)
                 throw new ArgumentException("Aucun Id ne correspond");
 
@@ -37,7 +37,7 @@ namespace P7CreateRestApi.Services
         }
 
         // Mise à jour / modification d'un BidList
-        public async Task UpdateBidList(BidListViewModel vm)
+        public async Task<BidList?> UpdateBidList(BidListViewModel vm)
         {
             if (vm.Id == 0)
                 throw new ArgumentException("L'Id est requis pour mettre à jour le BidList.");
@@ -47,31 +47,11 @@ namespace P7CreateRestApi.Services
             if (existingBidList == null)
                 throw new KeyNotFoundException($"BidList {vm.Id} introuvable.");
 
-            // Met à jour les champs
-            existingBidList.Account = vm.Account;
-            existingBidList.BidType = vm.BidType;
-            existingBidList.BidQuantity = vm.BidQuantity;
-            existingBidList.AskQuantity = vm.AskQuantity;
-            existingBidList.Bid = vm.Bid;
-            existingBidList.Ask = vm.Ask;
-            existingBidList.Benchmark = vm.Benchmark;
-            existingBidList.BidListDate = vm.BidListDate;
-            existingBidList.Commentary = vm.Commentary;
-            existingBidList.BidSecurity = vm.BidSecurity;
-            existingBidList.BidStatus = vm.BidStatus;
-            existingBidList.Trader = vm.Trader;
-            existingBidList.Book = vm.Book;
-            existingBidList.CreationName = vm.CreationName;
-            existingBidList.CreationDate = vm.CreationDate;
-            existingBidList.RevisionName = vm.RevisionName;
-            existingBidList.RevisionDate = vm.RevisionDate;
-            existingBidList.DealName = vm.DealName;
-            existingBidList.DealType = vm.DealType;
-            existingBidList.SourceListId = vm.SourceListId;
-            existingBidList.Side = vm.Side;
+            // Mappe les champs du vm dans entity
+            _mapper.Map(vm, existingBidList);
 
             // Sauvegarde les modifications
-            await _bidListRepository.Update(existingBidList);
+          return await _bidListRepository.Update(existingBidList);
         }
 
         public async Task DeleteBidList(int id)

@@ -26,10 +26,11 @@ namespace P7CreateRestApi.Data.Repositories
               .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task Update(BidList entity)
+        public async Task<BidList?> Update(BidList entity)
         {
             _context.BidLists.Update(entity);
             await _context.SaveChangesAsync();
+            return entity;
         }
 
         public async Task Delete(BidList entity)
