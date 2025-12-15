@@ -42,6 +42,7 @@ public class UsersController : ControllerBase
             return BadRequest(ModelState);
 
         var entity = await _userService.CreateUser(vm);
+
         return CreatedAtAction(nameof(GetById), new { id = entity.Id }, entity);
     }
 
@@ -66,14 +67,11 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id)
     {
-        try
-        {
-            await _userService.DeleteUser(id);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
+        var exists = await _userService.GetUserById(id);
+        if (exists == null)
             return NotFound();
-        }
+
+        await _userService.DeleteUser(id);
+        return Ok(new { message = "delete done successfully" });
     }
 }
