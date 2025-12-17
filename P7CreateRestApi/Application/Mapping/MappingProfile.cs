@@ -9,8 +9,11 @@ namespace P7CreateRestApi.Application.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<BidListViewModel, BidList>();
+            CreateMap<BidListViewModel, BidList>().ReverseMap();
             CreateMap<CurvePointViewModel, CurvePoint>().ReverseMap();
+            CreateMap<RatingViewModel, Rating>().ReverseMap();
+            CreateMap<RuleViewModel, Rule>().ReverseMap();
+            CreateMap<TradeViewModel, Trade>().ReverseMap();
         }
     }
 }

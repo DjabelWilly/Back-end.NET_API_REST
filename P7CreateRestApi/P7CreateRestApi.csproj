@@ -21,9 +21,4 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.16" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Data\Repositories\" />
-	  <Folder Include="Services\" />
-	</ItemGroup>
-
 </Project>

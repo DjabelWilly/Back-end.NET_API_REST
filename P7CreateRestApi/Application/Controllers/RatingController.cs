@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using P7CreateRestApi.Entities;
+using P7CreateRestApi.Application.ViewModels;
+using P7CreateRestApi.Services;
 
 namespace P7CreateRestApi.Application.Controllers
 {
@@ -7,53 +8,81 @@ namespace P7CreateRestApi.Application.Controllers
     [Route("[controller]")]
     public class RatingController : ControllerBase
     {
-        // TODO: Inject Rating service
+        private readonly IRatingService _ratingService;
 
-        [HttpGet]
-        [Route("list")]
-        public IActionResult Home()
+        public RatingController(IRatingService ratingService)
         {
-            // TODO: find all Rating, add to model
-            return Ok();
+            _ratingService = ratingService;
         }
 
-        [HttpGet]
-        [Route("add")]
-        public IActionResult AddRatingForm([FromBody]Rating rating)
-        {
-            return Ok();
-        }
 
         [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]Rating rating)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAll()
         {
-            // TODO: check data valid and save to db, after saving return Rating list
-            return Ok();
+            var list = await _ratingService.GetAllRatings();
+            return Ok(list);
         }
 
-        [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetById(int id)
         {
-            // TODO: get Rating by Id and to model then show to the form
-            return Ok();
+            var rating = await _ratingService.GetRatingById(id);
+            if (rating == null)
+                return NotFound();
+
+            return Ok(rating);
         }
 
         [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateRating(int id, [FromBody] Rating rating)
+        [ProducesResponseType(typeof(RatingViewModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Create([FromBody] RatingViewModel vm)
         {
-            // TODO: check required fields, if valid call service to update Rating and return Rating list
-            return Ok();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var created = await _ratingService.SaveRating(vm);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
-        [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteRating(int id)
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Update(int id, [FromBody] RatingViewModel vm)
         {
-            // TODO: Find Rating by Id and delete the Rating, return to Rating list
-            return Ok();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (vm.Id != id)
+                return BadRequest("Id mismatch");
+
+            var existing = await _ratingService.GetRatingById(id);
+            if (existing == null)
+                return NotFound();
+
+            await _ratingService.UpdateRating(vm);
+
+            return Ok(new { message = "update done successfully" });
+        }
+
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var exists = await _ratingService.GetRatingById(id);
+            if (exists == null)
+                return NotFound();
+
+            await _ratingService.DeleteRating(id);
+            return Ok(new { message = "delete done successfully" });
         }
     }
 }

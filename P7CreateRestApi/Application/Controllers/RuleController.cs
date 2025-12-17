@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using P7CreateRestApi.Entities;
+using P7CreateRestApi.Application.ViewModels;
+using P7CreateRestApi.Services;
 
 namespace P7CreateRestApi.Application.Controllers
 {
@@ -7,53 +8,81 @@ namespace P7CreateRestApi.Application.Controllers
     [Route("[controller]")]
     public class RuleController : ControllerBase
     {
-        // TODO: Inject RuleName service
+        private readonly IRuleService _ruleService;
 
-        [HttpGet]
-        [Route("list")]
-        public IActionResult Home()
+        public RuleController(IRuleService ruleService)
         {
-            // TODO: find all RuleName, add to model
-            return Ok();
+            _ruleService = ruleService;
         }
 
-        [HttpGet]
-        [Route("add")]
-        public IActionResult AddRuleName([FromBody]Rule trade)
-        {
-            return Ok();
-        }
 
         [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]Rule trade)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAll()
         {
-            // TODO: check data valid and save to db, after saving return RuleName list
-            return Ok();
+            var list = await _ruleService.GetAllRules();
+            return Ok(list);
         }
 
-        [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetById(int id)
         {
-            // TODO: get RuleName by Id and to model then show to the form
-            return Ok();
+            var rule = await _ruleService.GetRuleById(id);
+            if (rule == null)
+                return NotFound();
+
+            return Ok(rule);
         }
 
         [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateRuleName(int id, [FromBody] Rule rating)
+        [ProducesResponseType(typeof(RuleViewModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Create([FromBody] RuleViewModel vm)
         {
-            // TODO: check required fields, if valid call service to update RuleName and return RuleName list
-            return Ok();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var created = await _ruleService.SaveRule(vm);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
-        [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteRuleName(int id)
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Update(int id, [FromBody] RuleViewModel vm)
         {
-            // TODO: Find RuleName by Id and delete the RuleName, return to Rule list
-            return Ok();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (vm.Id != id)
+                return BadRequest("Id mismatch");
+
+            var existing = await _ruleService.GetRuleById(id);
+            if (existing == null)
+                return NotFound();
+
+            await _ruleService.UpdateRule(vm);
+
+            return Ok(new { message = "update done successfully" });
+        }
+
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var exists = await _ruleService.GetRuleById(id);
+            if (exists == null)
+                return NotFound();
+
+            await _ruleService.DeleteRule(id);
+            return Ok(new { message = "delete done successfully" });
         }
     }
 }
