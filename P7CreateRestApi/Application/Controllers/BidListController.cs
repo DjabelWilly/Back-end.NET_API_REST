@@ -8,32 +8,77 @@ namespace P7CreateRestApi.Application.Controllers
     [Route("[controller]")]
     public class BidListController : ControllerBase
     {
-        private IBidListService _bidListService;
+        private readonly IBidListService _bidListService;
 
-        [HttpPost]
-        public async Task<IActionResult> Create()
+        public BidListController(IBidListService bidListService)
         {
-            return Ok();
+            _bidListService = bidListService;
         }
 
+
+        [HttpPost]
+        [ProducesResponseType(typeof(BidListViewModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Create([FromBody] BidListViewModel vm)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var created = await _bidListService.SaveBidList(vm);
+
+            return CreatedAtAction(nameof(GetBidById), new { id = created.Id }, created);
+        }
+
+
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(BidListViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetBidById(int id)
         {
-            return Ok();
+            var result = await _bidListService.GetBidId(id);
+
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
         }
 
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBid(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateBid(int id, [FromBody] BidListViewModel vm)
         {
-            return Ok();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (id != vm.Id)
+                return BadRequest("Id mismatch.");
+
+            // Vérification existence pour éviter les 500 EF Core
+            var existing = await _bidListService.GetBidId(id);
+            if (existing == null)
+                return NotFound();
+
+            await _bidListService.UpdateBidList(vm);
+
+            return Ok(new { message = "update done successfully" });
         }
 
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteBid(int id)
         {
-            return Ok();
+            var exists = await _bidListService.GetBidId(id);
+            if (exists == null)
+                return NotFound();
+
+            await _bidListService.DeleteBidList(id);
+
+            return Ok(new { message = "delete done successfully" });
         }
 
     }
