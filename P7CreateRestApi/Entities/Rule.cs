@@ -1,6 +1,6 @@
 namespace P7CreateRestApi.Entities
 {
-    public class RuleName
+    public class Rule
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;

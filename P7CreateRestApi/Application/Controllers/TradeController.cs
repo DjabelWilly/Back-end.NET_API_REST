@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using P7CreateRestApi.Entities;
 
 namespace P7CreateRestApi.Application.Controllers
 {
@@ -7,52 +6,36 @@ namespace P7CreateRestApi.Application.Controllers
     [Route("[controller]")]
     public class TradeController : ControllerBase
     {
-        // TODO: Inject Trade service
 
         [HttpGet]
-        [Route("list")]
-        public IActionResult Home()
-        {
-            // TODO: find all Trade, add to model
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("add")]
-        public IActionResult AddTrade([FromBody]Trade trade)
+        public async Task<IActionResult> GetAllTrades()
         {
             return Ok();
         }
 
-        [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]Trade trade)
-        {
-            // TODO: check data valid and save to db, after saving return Trade list
-            return Ok();
-        }
 
-        [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
         {
-            // TODO: get Trade by Id and to model then show to the form
             return Ok();
         }
 
         [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateTrade(int id, [FromBody] Trade trade)
+        public async Task<IActionResult> Create()
         {
-            // TODO: check required fields, if valid call service to update Trade and return Trade list
             return Ok();
         }
 
-        [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteTrade(int id)
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id)
         {
-            // TODO: Find Trade by Id and delete the Trade, return to Trade list
+            return Ok();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
             return Ok();
         }
     }
