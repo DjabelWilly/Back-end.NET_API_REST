@@ -4,12 +4,13 @@ using P7CreateRestApi.Entities;
 
 namespace P7CreateRestApi.Application.Mapping
 {
-    // Profile AutoMapper : contient les règles de mapping entre ViewModels et Entities 
+    // Profile AutoMapper : gère le mapping entre ViewModels et Entities 
     public class MappingProfile : Profile
     {
         public MappingProfile()
         {
             CreateMap<BidListViewModel, BidList>();
+            CreateMap<CurvePointViewModel, CurvePoint>().ReverseMap();
         }
     }
 }

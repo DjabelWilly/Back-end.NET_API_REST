@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Application.ViewModels;
-using P7CreateRestApi.Entities;
 using P7CreateRestApi.Services;
 
 namespace P7CreateRestApi.Application.Controllers
@@ -9,7 +8,7 @@ namespace P7CreateRestApi.Application.Controllers
     [Route("[controller]")]
     public class BidListController : ControllerBase
     {
-        private readonly IBidListService _bidListService;
+        private IBidListService _bidListService;
 
         public BidListController(IBidListService bidListService)
         {
@@ -36,12 +35,7 @@ namespace P7CreateRestApi.Application.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetBidById(int id)
         {
-            var result = await _bidListService.GetBidId(id);
-
-            if (result == null)
-                return NotFound();
-
-            return Ok(result);
+            return Ok();
         }
 
 
