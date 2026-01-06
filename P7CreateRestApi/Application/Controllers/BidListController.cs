@@ -6,6 +6,7 @@ using P7CreateRestApi.Services;
 
 namespace P7CreateRestApi.Application.Controllers
 {
+    [Authorize(Policy = "AdminAccess")]
     [ApiController]
     [Route("[controller]")]
     public class BidListController : ControllerBase
@@ -17,8 +18,11 @@ namespace P7CreateRestApi.Application.Controllers
             _bidListService = bidListService;
         }
 
-
-          [HttpPost]
+        [HttpPost]
+        [ProducesResponseType(typeof(BidListViewModel), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> Create([FromBody] BidListViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -28,8 +32,12 @@ namespace P7CreateRestApi.Application.Controllers
             return CreatedAtAction(nameof(GetBidById), new { id = created.Id }, created);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "UserAccess")]
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(BidListViewModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetBidById(int id)
         {
             var result = await _bidListService.GetBidId(id);
@@ -40,7 +48,8 @@ namespace P7CreateRestApi.Application.Controllers
             return Ok(result);
         }
 
-       
+
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBid(int id, [FromBody] BidListViewModel vm)
         {

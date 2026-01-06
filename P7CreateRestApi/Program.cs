@@ -68,7 +68,17 @@ builder.Services.AddAuthentication(options =>
 });
 
 // -------------------- Authorization --------------------
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    // User : User OU Admin
+    options.AddPolicy("UserAccess", policy =>
+        policy.RequireRole("User", "Admin"));
+
+    // Admin : Admin uniquement
+    options.AddPolicy("AdminAccess", policy =>
+        policy.RequireRole("Admin"));
+});
+
 
 
 
@@ -110,22 +120,24 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
-app.UseAuthentication(); // JWT Authentication
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-// -------------------- Seed roles et admin --------------------
+// -------------------- Seed --------------------
 using (var scope = app.Services.CreateScope())
 {
+    // Roles
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     foreach (var role in new[] { "Admin", "User" })
     {
         if (!await roleManager.RoleExistsAsync(role))
             await roleManager.CreateAsync(new IdentityRole(role));
     }
-
+    // Admin → accès à toutes les routes
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
     var adminEmail = "admin@admin.com";
     var admin = await userManager.FindByEmailAsync(adminEmail);
     if (admin == null)
@@ -140,6 +152,23 @@ using (var scope = app.Services.CreateScope())
         await userManager.CreateAsync(admin, "Admin123!");
         await userManager.AddToRoleAsync(admin, "Admin");
     }
+
+    // User → accès uniquement aux routes "User"
+    var userEmail = "user@user.com";
+    var user = await userManager.FindByEmailAsync(userEmail);
+    if (user == null)
+    {
+        user = new ApplicationUser
+        {
+            UserName = userEmail,
+            Email = userEmail,
+            EmailConfirmed = true,
+            FullName = "AuthenticatedUser"
+        };
+        await userManager.CreateAsync(user, "User123!");
+        await userManager.AddToRoleAsync(user, "User");
+    }
+
 }
 
 app.Run();

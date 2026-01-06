@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Application.ViewModels;
 using P7CreateRestApi.Services;
 
 namespace P7CreateRestApi.Application.Controllers
 {
+    [Authorize(Policy = "AdminAccess")]
     [ApiController]
     [Route("[controller]")]
     public class RatingController : ControllerBase
@@ -15,7 +17,7 @@ namespace P7CreateRestApi.Application.Controllers
             _ratingService = ratingService;
         }
 
-
+        [Authorize(Policy = "UserAccess")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll()
@@ -24,7 +26,7 @@ namespace P7CreateRestApi.Application.Controllers
             return Ok(list);
         }
 
-
+        [Authorize(Policy = "UserAccess")]
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

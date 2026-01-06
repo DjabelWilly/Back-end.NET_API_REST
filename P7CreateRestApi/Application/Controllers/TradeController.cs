@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Application.ViewModels;
 using P7CreateRestApi.Entities;
@@ -5,6 +6,7 @@ using P7CreateRestApi.Services;
 
 namespace P7CreateRestApi.Application.Controllers
 {
+    [Authorize(Policy = "AdminAccess")]
     [ApiController]
     [Route("[controller]")]
     public class TradeController : ControllerBase
@@ -16,6 +18,8 @@ namespace P7CreateRestApi.Application.Controllers
             _tradeService = tradeService;
         }
 
+
+        [Authorize(Policy = "UserAccess")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTrades()
@@ -25,6 +29,7 @@ namespace P7CreateRestApi.Application.Controllers
         }
 
 
+        [Authorize(Policy = "UserAccess")]
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -36,6 +41,7 @@ namespace P7CreateRestApi.Application.Controllers
 
             return Ok(trade);
         }
+
 
         [HttpPost]
         [ProducesResponseType(typeof(TradeViewModel), StatusCodes.Status201Created)]
@@ -71,6 +77,7 @@ namespace P7CreateRestApi.Application.Controllers
 
             return Ok(new { message = "update done successfully" });
         }
+
 
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]

@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Application.ViewModels;
 using P7CreateRestApi.Services;
 
 namespace P7CreateRestApi.Application.Controllers
 {
+    [Authorize(Policy = "AdminAccess")]
     [ApiController]
     [Route("[controller]")]
     public class CurvePointController : ControllerBase
@@ -15,7 +17,7 @@ namespace P7CreateRestApi.Application.Controllers
             _curvePointService = curvePointService;
         }
 
-
+        [Authorize(Policy = "UserAccess")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllCurvePoints()
@@ -24,7 +26,7 @@ namespace P7CreateRestApi.Application.Controllers
             return Ok(result);
         }
 
-
+        [Authorize(Policy = "UserAccess")]
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(CurvePointViewModel), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
