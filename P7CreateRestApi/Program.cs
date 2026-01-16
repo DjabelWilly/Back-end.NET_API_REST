@@ -8,7 +8,16 @@ using Microsoft.OpenApi.Models;
 using P7CreateRestApi.Application.Mapping;
 using P7CreateRestApi.Data.Repositories;
 using P7CreateRestApi.Entities;
+using P7CreateRestApi.Middleware;
 using P7CreateRestApi.Services;
+using Serilog;
+
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.File(
+        "Logs/log.txt",
+        rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +31,14 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 // -------------------- Repositories & Services --------------------
 builder.Services.AddScoped<IBidListRepository, BidListRepository>();
 builder.Services.AddScoped<IBidListService, BidListService>();
+builder.Services.AddScoped<ICurvePointRepository, CurvePointRepository>();
+builder.Services.AddScoped<ICurvePointService, CurvePointService>();
+builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+builder.Services.AddScoped<IRatingService, RatingService>();
+builder.Services.AddScoped<IRuleRepository, RuleRepository>();
+builder.Services.AddScoped<IRuleService,  RuleService>();
+builder.Services.AddScoped<ITradeRepository, TradeRepository>();
+builder.Services.AddScoped<ITradeService, TradeService>();
 
 // -------------------- Identity --------------------
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -108,6 +125,8 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Host.UseSerilog();
+
 var app = builder.Build();
 
 // -------------------- Pipeline --------------------
@@ -121,7 +140,9 @@ app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
 app.UseAuthentication();
+app.UseMiddleware<LoggerMiddleware>();
 app.UseAuthorization();
+
 
 app.MapControllers();
 
@@ -144,7 +165,7 @@ using (var scope = app.Services.CreateScope())
     {
         admin = new ApplicationUser
         {
-            UserName = adminEmail,
+            UserName = "admin",
             Email = adminEmail,
             EmailConfirmed = true,
             FullName = "Administrator"
@@ -160,7 +181,7 @@ using (var scope = app.Services.CreateScope())
     {
         user = new ApplicationUser
         {
-            UserName = userEmail,
+            UserName = "user",
             Email = userEmail,
             EmailConfirmed = true,
             FullName = "AuthenticatedUser"
