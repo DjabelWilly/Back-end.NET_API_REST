@@ -4,17 +4,17 @@ namespace P7CreateRestApi.Application.ViewModels
 {
     public class RegisterViewModel
     {
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "L'email est obligatoire.")]
+        [EmailAddress(ErrorMessage = "L'email n'est pas valide.")]
+        [StringLength(100, ErrorMessage = "L'email ne peut pas dépasser 100 caractères.")]
         public string Email { get; set; } = null!;
 
-        [Required]
-        [MinLength(8)]
-        [RegularExpression(@"^(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).+$",
-            ErrorMessage = "Le mot de passe doit contenir au moins une majuscule, un chiffre et un symbole.")]
+        [Required(ErrorMessage = "Le mot de passe est obligatoire.")]
+        [DataType(DataType.Password)]
         public string Password { get; set; } = null!;
 
-        [Required]
+        [Required(ErrorMessage = "Le nom complet est obligatoire.")]
+        [StringLength(100, ErrorMessage = "Le nom complet ne peut pas dépasser 100 caractères.")]
         public string FullName { get; set; } = null!;
     }
 }
