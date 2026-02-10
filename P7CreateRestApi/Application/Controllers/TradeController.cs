@@ -1,12 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Application.ViewModels;
-using P7CreateRestApi.Entities;
 using P7CreateRestApi.Services;
 
 namespace P7CreateRestApi.Application.Controllers
 {
-    [Authorize(Policy = "AdminAccess")]
     [ApiController]
     [Route("[controller]")]
     public class TradeController : ControllerBase
@@ -31,7 +29,7 @@ namespace P7CreateRestApi.Application.Controllers
 
         [Authorize(Policy = "UserAccess")]
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(TradeViewModel), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById(int id)
         {
@@ -43,6 +41,7 @@ namespace P7CreateRestApi.Application.Controllers
         }
 
 
+        [Authorize(Policy = "AdminAccess")]
         [HttpPost]
         [ProducesResponseType(typeof(TradeViewModel), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -56,9 +55,9 @@ namespace P7CreateRestApi.Application.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
-
+        [Authorize(Policy = "AdminAccess")]
         [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(TradeViewModel), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update(int id, [FromBody] TradeViewModel vm)
@@ -66,21 +65,21 @@ namespace P7CreateRestApi.Application.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (vm.Id != id)
-                return BadRequest("Id mismatch");
+            if (vm.Id != id || vm.Id == 0)
+                return BadRequest("Id mismatch or invalid");
 
             var existing = await _tradeService.GetTradeById(id);
             if (existing == null)
                 return NotFound();
 
-            await _tradeService.UpdateTrade(vm);
+            var updated = await _tradeService.UpdateTrade(vm);
 
-            return Ok(new { message = "update done successfully" });
+            return Ok(updated);
         }
 
-
+        [Authorize(Policy = "AdminAccess")]
         [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int id)
         {
@@ -89,7 +88,8 @@ namespace P7CreateRestApi.Application.Controllers
                 return NotFound();
 
             await _tradeService.DeleteTrade(id);
-            return Ok(new { message = "delete done successfully" });
+
+            return NoContent();
         }
     }
 }

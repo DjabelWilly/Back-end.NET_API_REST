@@ -17,6 +17,7 @@
           "Microsoft.EntityFrameworkCore.SqlServer": "6.0.16",
           "Microsoft.EntityFrameworkCore.Tools": "6.0.16",
           "Serilog.AspNetCore": "10.0.0",
+          "Serilog.Settings.Configuration": "10.0.0",
           "Serilog.Sinks.File": "7.0.0",
           "Swashbuckle.AspNetCore": "6.5.0"
         },

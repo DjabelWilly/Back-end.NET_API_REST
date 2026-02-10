@@ -13,13 +13,18 @@ using P7CreateRestApi.Services;
 using Serilog;
 
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.File(
-        "Logs/log.txt",
-        rollingInterval: RollingInterval.Day)
-    .CreateLogger();
-
 var builder = WebApplication.CreateBuilder(args);
+
+
+// -------------------- Serilog --------------------
+
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext();
+});
 
 // -------------------- DB Context --------------------
 builder.Services.AddDbContext<LocalDbContext>(options =>
@@ -98,7 +103,6 @@ builder.Services.AddAuthorization(options =>
 
 
 
-
 // -------------------- Controllers & Swagger --------------------
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -125,7 +129,6 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Host.UseSerilog();
 
 var app = builder.Build();
 

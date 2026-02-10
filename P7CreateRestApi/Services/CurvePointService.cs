@@ -24,9 +24,7 @@ namespace P7CreateRestApi.Services
         public async Task<CurvePoint?> GetCurvePointById(int id)
         {
             var entity = await _curvePointRepository.GetCurvePointById(id);
-            if (entity == null)
-                throw new KeyNotFoundException($"CurvePoint {id} introuvable.");
-
+          
             return entity;
         }
 
@@ -34,18 +32,16 @@ namespace P7CreateRestApi.Services
         {
             var entity = _mapper.Map<CurvePoint>(vm);
             await _curvePointRepository.SaveCurvePoint(entity);
+            
             return entity;
         }
 
         public async Task<CurvePoint?> UpdateCurvePoint(CurvePointViewModel vm)
         {
-            if (vm.Id == 0)
-                throw new ArgumentException("L'Id est requis pour mettre à jour le CurvePoint.");
-
             var existing = await _curvePointRepository.GetCurvePointById(vm.Id);
             if (existing == null)
-                throw new KeyNotFoundException($"CurvePoint {vm.Id} introuvable.");
-
+                return null;
+               
             _mapper.Map(vm, existing);
 
             await _curvePointRepository.Update(existing);
@@ -56,7 +52,7 @@ namespace P7CreateRestApi.Services
         {
             var entity = await _curvePointRepository.GetCurvePointById(id);
             if (entity == null)
-                throw new KeyNotFoundException($"CurvePoint {id} introuvable.");
+                return;
 
             await _curvePointRepository.Delete(entity);
         }

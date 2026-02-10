@@ -3,6 +3,12 @@ using static System.Net.WebRequestMethods;
 
 namespace P7CreateRestApi.Middleware
 {
+    /// <summary>
+    /// Middleware de journalisation des requêtes HTTP.
+    /// Enregistre pour chaque appel l'utilisateur (ou Anonymous),
+    /// la méthode HTTP, le chemin de la requête, le code de réponse
+    /// et la date d'exécution.
+    /// </summary>
     public class LoggerMiddleware
     {
         private readonly RequestDelegate _next;
@@ -14,6 +20,10 @@ namespace P7CreateRestApi.Middleware
             _logger = logger;
         }
 
+        /// <summary>
+        /// Intercepte la requête HTTP, laisse l'endpoint s'exécuter,
+        /// puis journalise les informations de la requête et de la réponse.
+        /// </summary>
         public async Task Invoke(HttpContext context)
         {
             // Vérifie si l’utilisateur est authentifié

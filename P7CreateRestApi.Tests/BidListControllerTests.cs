@@ -1,6 +1,4 @@
-using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
 using P7CreateRestApi.Application.Controllers;
 using P7CreateRestApi.Application.ViewModels;
 using P7CreateRestApi.Entities;
@@ -10,9 +8,10 @@ namespace P7CreateRestApi.Tests
 {
     public class BidListControllerTests
     {
-        // Mock du service pour simuler les interactions sans toucher à la DB
+        // Mock du service
         private readonly Mock<IBidListService> _serviceMock;
-        // Instance du controller que l'on va tester
+
+        // Instance du controller que l'on teste
         private readonly BidListController _controller;
 
         public BidListControllerTests()
@@ -22,53 +21,104 @@ namespace P7CreateRestApi.Tests
         }
 
         [Fact]
+        public async Task Create_InvalidModel_ReturnsBadRequest()
+        {
+            // Arrange
+            var vm = new BidListViewModel();
+            _controller.ModelState.AddModelError("Account", "Required");
+
+            // Act
+            var result = await _controller.Create(vm);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Fact]
+        public async Task Create_ValidModel_ReturnsCreatedAtAction()
+        {
+            // Arrange
+            var entity = new BidList
+            {
+                Id = 1,
+                Account = "ACC1",
+                BidQuantity = 10
+            };
+
+            var vm = new BidListViewModel
+            {
+                Id = 1,
+                Account = "ACC1",
+                BidQuantity = 10
+            };
+
+            _serviceMock.Setup(s => s.SaveBidList(vm))
+                        .ReturnsAsync(entity);
+
+            // Act
+            var result = await _controller.Create(vm);
+
+            // Assert
+            // createdResult contient donc la réponse HTTP 201 retournée par le controller.
+            var createdResult = result.Should().BeOfType<CreatedAtActionResult>().Which;
+
+            createdResult.ActionName.Should().Be(nameof(_controller.GetBidById));
+            createdResult.RouteValues!["id"].Should().Be(entity.Id);
+            createdResult.Value.Should().Be(entity);
+        }
+
+        [Fact]
         public async Task GetBidById_ExistingId_ReturnsOk_WithEntity()
         {
             // Arrange
-            var entity = new BidList { Id = 1, Account = "test1", BidQuantity = 1 };  // Création d'une entité BidList
-            _serviceMock.Setup(s => s.GetBidId(1)).ReturnsAsync(entity); // Quand le controller appellera GetBidId(1),
-                                                                         // le service simulé retournera l'entité créée ci-dessus
+            // Création entité BidList
+            var entity = new BidList { Id = 1, Account = "test1", BidQuantity = 1 };
+            // Setup du comportement attendu
+            _serviceMock.Setup(s => s.GetBidId(1)).ReturnsAsync(entity);
 
             // Act
-            var result = await _controller.GetBidById(1);  // Simule un appel HTTP GET /BidList/1
+            // Simule un appel HTTP GET /BidList/1
+            var result = await _controller.GetBidById(1);
 
             // Assert
-            var okResult = result.Should().BeOfType<OkObjectResult>().Which;  // Vérifie que le résultat est bien un OkObjectResult (HTTP 200)
-                                                                              // "Which" permet de récupérer directement l'objet casté
-
-            okResult.Value.Should().Be(entity);  // Vérifie que l'objet retourné dans la réponse
-                                                 // est bien l'entité renvoyée par le service mocké
-
+            // Vérifie que le résultat est bien un OkObjectResult (HTTP 200)
+            var okResult = result.Should().BeOfType<OkObjectResult>().Which;
+            // Vérifie que l'objet retourné est bien l'entité                                                               
+            okResult.Value.Should().Be(entity);
         }
+
         [Fact]
         public async Task GetBidById_NotFound_ReturnsNotFound()
         {
             // Arrange
-            _serviceMock.Setup(s => s.GetBidId(2))// Le service retourne null pour simuler un ID inexistant
+            // Simule un ID inexistant, retourne null
+            _serviceMock.Setup(s => s.GetBidId(2))
             .ReturnsAsync((BidList?)null);
 
             // Act
-            var result = await _controller.GetBidById(2); // Appel du controller avec un ID qui n'existe pas
+            // Appel du controller avec un ID qui n'existe pas
+            var result = await _controller.GetBidById(2);
 
             // Assert
-            result.Should().BeOfType<NotFoundResult>(); // Le controller doit retourner un HTTP 404
+            // Le controller doit retourner un reponse HTTP 404
+            result.Should().BeOfType<NotFoundResult>();
         }
 
         [Fact]
         public async Task UpdateBid_ValidId_ReturnsOk()
         {
             // Arrange
-            // ViewModel valide (au minimum pour le test)
-            var vm = new BidListViewModel { Id = 1 };
+            // ViewModel valide
+            var vm = new BidListViewModel { Id = 1, Account = "XXXYYY", BidQuantity = 5 };
 
             // Entité existante simulée
-            var entity = new BidList { Id = 1 };
+            var entity = new BidList { Id = 1, Account = "XXXYYY", BidQuantity = 5 };
 
-            // Le service trouve bien l'entité
+            // Simule que l'entité est bien retournée
             _serviceMock.Setup(s => s.GetBidId(1))
                         .ReturnsAsync(entity);
 
-            // Le service met à jour et retourne l'entité
+            // Simule la mise à jour et retourne l'entité
             _serviceMock.Setup(s => s.UpdateBidList(vm))
                         .ReturnsAsync(entity);
 
@@ -77,7 +127,7 @@ namespace P7CreateRestApi.Tests
 
             // Assert
             // Vérifie que la réponse est HTTP 200 OK
-            result.Should().BeOfType<OkResult>();
+            result.Should().BeOfType<OkObjectResult>();
 
             // Vérifie que la méthode UpdateBidList a bien été appelée une seule fois
             _serviceMock.Verify(s => s.UpdateBidList(vm), Times.Once);
@@ -95,21 +145,63 @@ namespace P7CreateRestApi.Tests
 
             // Assert
             // Le controller doit bloquer la requête
+            result.Should().BeOfType<BadRequestResult>();
+        }
+
+        [Fact]
+        public async Task UpdateBid_InvalidModel_ReturnsBadRequest()
+        {
+            // Arrange
+            var vm = new BidListViewModel { Id = 1, Account = "TEST", BidQuantity = 5 };
+            _controller.ModelState.AddModelError("Account", "Required");
+
+            // Act
+            var result = await _controller.UpdateBid(1, vm);
+
+            // Assert
             result.Should().BeOfType<BadRequestObjectResult>();
         }
 
         [Fact]
-        public async Task DeleteBid_ExistingId_ReturnsOk()
+        public async Task UpdateBid_IdZero_ReturnsBadRequest()
         {
             // Arrange
-            // Entité existante simulée
+            var vm = new BidListViewModel { Id = 0, Account = "TEST", BidQuantity = 5 };
+
+            // Act
+            var result = await _controller.UpdateBid(1, vm);
+
+            // Assert
+            result.Should().BeOfType<BadRequestResult>();
+        }
+
+        [Fact]
+        public async Task UpdateBid_ServiceReturnsNull_ReturnsNotFound()
+        {
+            // Arrange
+            var vm = new BidListViewModel { Id = 1, Account = "TEST", BidQuantity = 5 };
+
+            // Simule que la mise à jour retourne null
+            _serviceMock.Setup(s => s.UpdateBidList(vm))
+                        .ReturnsAsync((BidList?)null);
+
+            // Act
+            var result = await _controller.UpdateBid(1, vm);
+
+            // Assert
+            result.Should().BeOfType<NotFoundResult>();
+        }
+
+        [Fact]
+        public async Task DeleteBid_ExistingId_ReturnsNoContent()
+        {
+            // Arrange
             var entity = new BidList { Id = 1 };
 
-            // Le service trouve l'entité
+            // Simule que l'on trouve l'entité
             _serviceMock.Setup(s => s.GetBidId(1))
                         .ReturnsAsync(entity);
-
-            // Le delete se passe correctement
+            // Simule que la suppression est complétée
             _serviceMock.Setup(s => s.DeleteBidList(1))
                         .Returns(Task.CompletedTask);
 
@@ -117,10 +209,8 @@ namespace P7CreateRestApi.Tests
             var result = await _controller.DeleteBid(1);
 
             // Assert
-            // Vérifie que la suppression retourne HTTP 200
-            result.Should().BeOfType<OkResult>();
+            result.Should().BeOfType<NoContentResult>();
 
-            // Vérifie que la méthode DeleteBidList a bien été appelée une fois
             _serviceMock.Verify(s => s.DeleteBidList(1), Times.Once);
         }
 
@@ -128,7 +218,7 @@ namespace P7CreateRestApi.Tests
         public async Task DeleteBid_NotFound_ReturnsNotFound()
         {
             // Arrange
-            // Le service ne trouve pas l'entité
+            // Simule que l'on ne trouve pas l'entité
             _serviceMock.Setup(s => s.GetBidId(1))
                         .ReturnsAsync((BidList?)null);
 
@@ -136,10 +226,8 @@ namespace P7CreateRestApi.Tests
             var result = await _controller.DeleteBid(1);
 
             // Assert
-            // Le controller doit retourner HTTP 404
+            // Le controller doit retourner une reponse HTTP 404
             result.Should().BeOfType<NotFoundResult>();
         }
-
-
     }
 }

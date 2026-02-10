@@ -22,6 +22,7 @@ namespace P7CreateRestApi.Services
         {
             var entity = _mapper.Map<BidList>(vm);
             await _bidListRepository.SaveBidList(entity);
+
             return entity;
         }
 
@@ -30,40 +31,33 @@ namespace P7CreateRestApi.Services
         {
             var entity = await _bidListRepository.GetBidListById(id);
 
-            if (entity == null)
-                throw new ArgumentException("Aucun Id ne correspond");
-
             return entity;
         }
 
         // Mise à jour / modification d'un BidList
         public async Task<BidList?> UpdateBidList(BidListViewModel vm)
         {
-            if (vm.Id == 0)
-                throw new ArgumentException("L'Id est requis pour mettre à jour le BidList.");
+            var entity = await _bidListRepository.GetBidListById(vm.Id);
 
-            // Récupère l'entité existante
-            var existingBidList = await _bidListRepository.GetBidListById(vm.Id);
-            if (existingBidList == null)
-                throw new KeyNotFoundException($"BidList {vm.Id} introuvable.");
+            if (entity == null)
+                return null;
 
-            // Mappe les champs du vm dans entity
-            _mapper.Map(vm, existingBidList);
+            _mapper.Map(vm, entity);
 
-            // Sauvegarde les modifications
-          return await _bidListRepository.Update(existingBidList);
+            return await _bidListRepository.Update(entity);
         }
 
+        // Suppression
         public async Task DeleteBidList(int id)
         {
             var entity = await _bidListRepository.GetBidListById(id);
 
             if (entity == null)
-                throw new KeyNotFoundException($"BidList {id} introuvable.");
+                return;
 
             await _bidListRepository.Delete(entity);
+           
         }
-
 
     }
 }

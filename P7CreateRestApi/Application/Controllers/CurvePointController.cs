@@ -5,7 +5,6 @@ using P7CreateRestApi.Services;
 
 namespace P7CreateRestApi.Application.Controllers
 {
-    [Authorize(Policy = "AdminAccess")]
     [ApiController]
     [Route("[controller]")]
     public class CurvePointController : ControllerBase
@@ -41,6 +40,7 @@ namespace P7CreateRestApi.Application.Controllers
         }
 
 
+        [Authorize(Policy = "AdminAccess")]
         [HttpPost]
         [ProducesResponseType(typeof(CurvePointViewModel), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -54,7 +54,7 @@ namespace P7CreateRestApi.Application.Controllers
             return CreatedAtAction(nameof(GetCurvePointById), new { id = created.Id }, created);
         }
 
-
+        [Authorize(Policy = "AdminAccess")]
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -64,22 +64,23 @@ namespace P7CreateRestApi.Application.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (id != vm.Id)
+            if (id != vm.Id || vm.Id == 0)
                 return BadRequest("Id mismatch");
 
             // Vérification existence pour éviter les 500
-            var existing = await _curvePointService.GetCurvePointById(id);
-            if (existing == null)
+            var updated = await _curvePointService.GetCurvePointById(id);
+           
+            if (updated == null)
                 return NotFound();
 
             await _curvePointService.UpdateCurvePoint(vm);
 
-            return Ok(new { message = "update done successfully" });
+            return Ok(updated);
         }
 
-
+        [Authorize(Policy = "AdminAccess")]
         [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int id)
         {
@@ -89,7 +90,8 @@ namespace P7CreateRestApi.Application.Controllers
 
             await _curvePointService.DeleteCurvePoint(id);
 
-            return Ok(new { message = "delete done successfully" });
+            return NoContent(); // 204 NoContent
+
         }
     }
 }

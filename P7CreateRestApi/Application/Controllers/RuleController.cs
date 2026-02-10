@@ -5,7 +5,6 @@ using P7CreateRestApi.Services;
 
 namespace P7CreateRestApi.Application.Controllers
 {
-    [Authorize(Policy = "AdminAccess")]
     [ApiController]
     [Route("[controller]")]
     public class RuleController : ControllerBase
@@ -26,10 +25,9 @@ namespace P7CreateRestApi.Application.Controllers
             return Ok(list);
         }
 
-
         [Authorize(Policy = "UserAccess")]
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(RuleViewModel), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById(int id)
         {
@@ -40,6 +38,7 @@ namespace P7CreateRestApi.Application.Controllers
             return Ok(rule);
         }
 
+        [Authorize(Policy = "AdminAccess")]
         [HttpPost]
         [ProducesResponseType(typeof(RuleViewModel), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -52,9 +51,9 @@ namespace P7CreateRestApi.Application.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
-
+        [Authorize(Policy = "AdminAccess")]
         [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(RuleViewModel), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update(int id, [FromBody] RuleViewModel vm)
@@ -62,21 +61,21 @@ namespace P7CreateRestApi.Application.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (vm.Id != id)
+            if (vm.Id != id || vm.Id == 0)
                 return BadRequest("Id mismatch");
 
             var existing = await _ruleService.GetRuleById(id);
             if (existing == null)
                 return NotFound();
 
-            await _ruleService.UpdateRule(vm);
+            var updated = await _ruleService.UpdateRule(vm);
 
-            return Ok(new { message = "update done successfully" });
+            return Ok(updated);
         }
 
-
+        [Authorize(Policy = "AdminAccess")]
         [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int id)
         {
@@ -85,7 +84,8 @@ namespace P7CreateRestApi.Application.Controllers
                 return NotFound();
 
             await _ruleService.DeleteRule(id);
-            return Ok(new { message = "delete done successfully" });
+
+            return NoContent(); 
         }
     }
 }
