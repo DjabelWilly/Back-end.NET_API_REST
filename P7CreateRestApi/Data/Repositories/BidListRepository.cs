@@ -1,5 +1,4 @@
-﻿using Dot.Net.WebApi.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Entities;
 
 
