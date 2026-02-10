@@ -1,0 +1,20 @@
+# Build output
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Coverlet / Test results
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+*.opencover.xml
+
+# Visual Studio / VSCode
+.vs/
+.vscode/
