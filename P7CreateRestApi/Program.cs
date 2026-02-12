@@ -1,11 +1,11 @@
 ﻿using System.Text;
-using Dot.Net.WebApi.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using P7CreateRestApi.Application.Mapping;
+using P7CreateRestApi.Data;
 using P7CreateRestApi.Data.Repositories;
 using P7CreateRestApi.Entities;
 using P7CreateRestApi.Middleware;
@@ -92,11 +92,11 @@ builder.Services.AddAuthentication(options =>
 // -------------------- Authorization --------------------
 builder.Services.AddAuthorization(options =>
 {
-    // User : User OU Admin
+    // Policy "UserAccess" autorise User, Admin
     options.AddPolicy("UserAccess", policy =>
         policy.RequireRole("User", "Admin"));
 
-    // Admin : Admin uniquement
+    // Policy "AdminAccess" autorise Admin uniquement
     options.AddPolicy("AdminAccess", policy =>
         policy.RequireRole("Admin"));
 });
@@ -149,7 +149,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// -------------------- Seed --------------------
+// -------------------- Seed des Rôles --------------------
 using (var scope = app.Services.CreateScope())
 {
     // Roles
