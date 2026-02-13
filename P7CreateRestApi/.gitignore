@@ -2,6 +2,14 @@
 node_modules
 /dist
 
+# Coverlet / Test results
+TestResults/
+coverage/
+coveragereport/
+*.coverage
+*.coveragexml
+*.opencover.xml
+
 
 # local env files
 .env.local
@@ -20,6 +28,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+*.bat
 
 /bin/**
 /obj/**

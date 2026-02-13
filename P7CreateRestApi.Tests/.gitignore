@@ -7,10 +7,12 @@ obj/
 *.suo
 *.userosscache
 *.sln.docstates
+*.bat
 
 # Coverlet / Test results
 TestResults/
 coverage/
+coveragereport/
 *.coverage
 *.coveragexml
 *.opencover.xml
@@ -18,3 +20,4 @@ coverage/
 # Visual Studio / VSCode
 .vs/
 .vscode/
+
