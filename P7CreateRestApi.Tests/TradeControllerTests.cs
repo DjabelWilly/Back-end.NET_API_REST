@@ -20,10 +20,10 @@ namespace P7CreateRestApi.Tests
         [Fact]
         public async Task GetAllTrades_ReturnsOk_WithList()
         {
-            var list = new List<Trade>
+            var list = new List<TradeViewModel>
             {
-                new Trade { Id = 1, Account = "ACC1" },
-                new Trade { Id = 2, Account = "ACC2" }
+                new TradeViewModel { Id = 1, Account = "ACC1" },
+                new TradeViewModel { Id = 2, Account = "ACC2" }
             };
 
             _serviceMock.Setup(s => s.GetAllTrades()).ReturnsAsync(list);
@@ -35,9 +35,9 @@ namespace P7CreateRestApi.Tests
         }
 
         [Fact]
-        public async Task GetById_ExistingId_ReturnsOk_WithEntity()
+        public async Task GetById_ExistingId_ReturnsOk()
         {
-            var trade = new Trade { Id = 1, Account = "ACC1" };
+            var trade = new TradeViewModel { Id = 1, Account = "ACC1" };
             _serviceMock.Setup(s => s.GetTradeById(1)).ReturnsAsync(trade);
 
             var result = await _controller.GetById(1);
@@ -49,11 +49,11 @@ namespace P7CreateRestApi.Tests
         [Fact]
         public async Task GetById_NotFound_ReturnsNotFound()
         {
-            _serviceMock.Setup(s => s.GetTradeById(1)).ReturnsAsync((Trade?)null);
+            _serviceMock.Setup(s => s.GetTradeById(1)).ReturnsAsync((TradeViewModel?)null);
 
             var result = await _controller.GetById(1);
 
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
         }
 
         [Fact]
@@ -61,6 +61,7 @@ namespace P7CreateRestApi.Tests
         {
             var vm = new TradeViewModel
             {
+                Id = 1,
                 Account = "ACC1",
                 AccountType = "Type1",
                 BuyQuantity = 100,
@@ -72,16 +73,15 @@ namespace P7CreateRestApi.Tests
                 TradeStatus = "Open",
                 Trader = "Trader1"
             };
-            var created = new Trade { Id = 1, Account = vm.Account };
 
-            _serviceMock.Setup(s => s.SaveTrade(vm)).ReturnsAsync(created);
+            _serviceMock.Setup(s => s.SaveTrade(vm)).ReturnsAsync(vm);
 
             var result = await _controller.Create(vm);
 
             var createdResult = result.Should().BeOfType<CreatedAtActionResult>().Which;
             createdResult.ActionName.Should().Be(nameof(_controller.GetById));
-            createdResult.RouteValues!["id"].Should().Be(created.Id);
-            createdResult.Value.Should().Be(created);
+            createdResult.RouteValues!["id"].Should().Be(vm.Id);
+            createdResult.Value.Should().Be(vm);
         }
 
         [Fact]
@@ -96,7 +96,7 @@ namespace P7CreateRestApi.Tests
         }
 
         [Fact]
-        public async Task Update_ValidId_ReturnsOk_WithUpdatedEntity()
+        public async Task Update_ValidId_ReturnsOk()
         {
             var vm = new TradeViewModel
             {
@@ -107,8 +107,8 @@ namespace P7CreateRestApi.Tests
                 TradeStatus = "Open",
                 Trader = "Trader1"
             };
-            var existing = new Trade { Id = 1, Account = "Old" };
-            var updated = new Trade { Id = 1, Account = "ACC1" };
+            var existing = new TradeViewModel { Id = 1, Account = "Old" };
+            var updated = new TradeViewModel { Id = 1, Account = "ACC1" };
 
             _serviceMock.Setup(s => s.GetTradeById(1)).ReturnsAsync(existing);
             _serviceMock.Setup(s => s.UpdateTrade(vm)).ReturnsAsync(updated);
@@ -134,11 +134,11 @@ namespace P7CreateRestApi.Tests
         public async Task Update_NotFound_ReturnsNotFound()
         {
             var vm = new TradeViewModel { Id = 1 };
-            _serviceMock.Setup(s => s.GetTradeById(1)).ReturnsAsync((Trade?)null);
+            _serviceMock.Setup(s => s.GetTradeById(1)).ReturnsAsync((TradeViewModel?)null);
 
             var result = await _controller.Update(1, vm);
 
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
         }
 
         [Fact]
@@ -155,7 +155,7 @@ namespace P7CreateRestApi.Tests
         [Fact]
         public async Task Delete_ExistingId_ReturnsNoContent()
         {
-            var existing = new Trade { Id = 1 };
+            var existing = new TradeViewModel { Id = 1 };
             _serviceMock.Setup(s => s.GetTradeById(1)).ReturnsAsync(existing);
             _serviceMock.Setup(s => s.DeleteTrade(1)).Returns(Task.CompletedTask);
 
@@ -168,11 +168,11 @@ namespace P7CreateRestApi.Tests
         [Fact]
         public async Task Delete_NotFound_ReturnsNotFound()
         {
-            _serviceMock.Setup(s => s.GetTradeById(1)).ReturnsAsync((Trade?)null);
+            _serviceMock.Setup(s => s.GetTradeById(1)).ReturnsAsync((TradeViewModel?)null);
 
             var result = await _controller.Delete(1);
 
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
         }
     }
 }

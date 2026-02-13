@@ -20,10 +20,10 @@ namespace P7CreateRestApi.Tests
         [Fact]
         public async Task GetAll_ReturnsOk_WithList()
         {
-            var list = new List<Rule>
+            var list = new List<RuleViewModel>
             {
-                new Rule { Id = 1, Name = "Rule1" },
-                new Rule { Id = 2, Name = "Rule2" }
+                new RuleViewModel { Id = 1, Name = "Rule1" },
+                new RuleViewModel { Id = 2, Name = "Rule2" }
             };
 
             _serviceMock.Setup(s => s.GetAllRules()).ReturnsAsync(list);
@@ -35,9 +35,9 @@ namespace P7CreateRestApi.Tests
         }
 
         [Fact]
-        public async Task GetById_ExistingId_ReturnsOk_WithEntity()
+        public async Task GetById_ExistingId_ReturnsOk()
         {
-            var rule = new Rule { Id = 1, Name = "Rule1" };
+            var rule = new RuleViewModel { Id = 1, Name = "Rule1" };
             _serviceMock.Setup(s => s.GetRuleById(1)).ReturnsAsync(rule);
 
             var result = await _controller.GetById(1);
@@ -49,11 +49,11 @@ namespace P7CreateRestApi.Tests
         [Fact]
         public async Task GetById_NotFound_ReturnsNotFound()
         {
-            _serviceMock.Setup(s => s.GetRuleById(1)).ReturnsAsync((Rule?)null);
+            _serviceMock.Setup(s => s.GetRuleById(1)).ReturnsAsync((RuleViewModel?)null);
 
             var result = await _controller.GetById(1);
 
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
         }
 
         [Fact]
@@ -61,6 +61,7 @@ namespace P7CreateRestApi.Tests
         {
             var vm = new RuleViewModel
             {
+                Id = 1,
                 Name = "Rule1",
                 Description = "Desc1",
                 Json = "{}",
@@ -68,16 +69,15 @@ namespace P7CreateRestApi.Tests
                 SqlStr = "SELECT 1",
                 SqlPart = "WHERE 1=1"
             };
-            var created = new Rule { Id = 1, Name = vm.Name };
 
-            _serviceMock.Setup(s => s.SaveRule(vm)).ReturnsAsync(created);
+            _serviceMock.Setup(s => s.SaveRule(vm)).ReturnsAsync(vm);
 
             var result = await _controller.Create(vm);
 
             var createdResult = result.Should().BeOfType<CreatedAtActionResult>().Which;
             createdResult.ActionName.Should().Be(nameof(_controller.GetById));
-            createdResult.RouteValues!["id"].Should().Be(created.Id);
-            createdResult.Value.Should().Be(created);
+            createdResult.RouteValues!["id"].Should().Be(vm.Id);
+            createdResult.Value.Should().Be(vm);
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace P7CreateRestApi.Tests
         }
 
         [Fact]
-        public async Task Update_ValidId_ReturnsOk_WithUpdatedEntity()
+        public async Task Update_ValidId_ReturnsOk()
         {
             var vm = new RuleViewModel
             {
@@ -104,8 +104,8 @@ namespace P7CreateRestApi.Tests
                 SqlStr = "SELECT 1",
                 SqlPart = "WHERE 1=1"
             };
-            var existing = new Rule { Id = 1, Name = "Old" };
-            var updated = new Rule { Id = 1, Name = "Updated" };
+            var existing = new RuleViewModel { Id = 1, Name = "Old" };
+            var updated = new RuleViewModel { Id = 1, Name = "Updated" };
 
             _serviceMock.Setup(s => s.GetRuleById(1)).ReturnsAsync(existing);
             _serviceMock.Setup(s => s.UpdateRule(vm)).ReturnsAsync(updated);
@@ -131,11 +131,11 @@ namespace P7CreateRestApi.Tests
         public async Task Update_NotFound_ReturnsNotFound()
         {
             var vm = new RuleViewModel { Id = 1 };
-            _serviceMock.Setup(s => s.GetRuleById(1)).ReturnsAsync((Rule?)null);
+            _serviceMock.Setup(s => s.GetRuleById(1)).ReturnsAsync((RuleViewModel?)null);
 
             var result = await _controller.Update(1, vm);
 
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
         }
 
         [Fact]
@@ -152,7 +152,7 @@ namespace P7CreateRestApi.Tests
         [Fact]
         public async Task Delete_ExistingId_ReturnsNoContent()
         {
-            var existing = new Rule { Id = 1 };
+            var existing = new RuleViewModel { Id = 1 };
             _serviceMock.Setup(s => s.GetRuleById(1)).ReturnsAsync(existing);
             _serviceMock.Setup(s => s.DeleteRule(1)).Returns(Task.CompletedTask);
 
@@ -165,11 +165,11 @@ namespace P7CreateRestApi.Tests
         [Fact]
         public async Task Delete_NotFound_ReturnsNotFound()
         {
-            _serviceMock.Setup(s => s.GetRuleById(1)).ReturnsAsync((Rule?)null);
+            _serviceMock.Setup(s => s.GetRuleById(1)).ReturnsAsync((RuleViewModel?)null);
 
             var result = await _controller.Delete(1);
 
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
         }
     }
 }

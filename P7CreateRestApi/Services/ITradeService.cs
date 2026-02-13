@@ -5,10 +5,11 @@ namespace P7CreateRestApi.Services
 {
     public interface ITradeService
     {
-        Task<IEnumerable<Trade>> GetAllTrades();
-        Task<Trade?> GetTradeById(int id);
-        Task<Trade> SaveTrade(TradeViewModel vm);
-        Task<Trade?> UpdateTrade(TradeViewModel vm);
+        Task<IEnumerable<TradeViewModel>> GetAllTrades();
+        Task<TradeViewModel?> GetTradeById(int id);
+        Task<TradeViewModel> SaveTrade(TradeViewModel vm);
+        Task<TradeViewModel?> UpdateTrade(TradeViewModel vm);
         Task DeleteTrade(int id);
     }
+
 }

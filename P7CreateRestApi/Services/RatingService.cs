@@ -16,44 +16,45 @@ namespace P7CreateRestApi.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Rating>> GetAllRatings()
+        public async Task<IEnumerable<RatingViewModel>> GetAllRatings()
         {
-            return await _ratingRepository.GetAllRatings();
+            var entities = await _ratingRepository.GetAllRatings();
+            return _mapper.Map<IEnumerable<RatingViewModel>>(entities);
         }
 
-        public async Task<Rating?> GetRatingById(int id)
+        public async Task<RatingViewModel?> GetRatingById(int id)
         {
-            return await _ratingRepository.GetRatingById(id);
+            var entity = await _ratingRepository.GetRatingById(id);
+            return entity == null ? null : _mapper.Map<RatingViewModel>(entity);
         }
 
-        public async Task<Rating> SaveRating(RatingViewModel vm)
+        public async Task<RatingViewModel> SaveRating(RatingViewModel vm)
         {
             var entity = _mapper.Map<Rating>(vm);
             await _ratingRepository.SaveRating(entity);
-            return entity;
+            return _mapper.Map<RatingViewModel>(entity);
         }
 
-        public async Task<Rating?> UpdateRating(RatingViewModel vm)
+        public async Task<RatingViewModel?> UpdateRating(RatingViewModel vm)
         {
             var existing = await _ratingRepository.GetRatingById(vm.Id);
             if (existing == null)
-                throw new KeyNotFoundException($"Rating {vm.Id} introuvable.");
+                return null;
 
-            // mappe les valeurs de vm dans l'entity existante dans la db.
             _mapper.Map(vm, existing);
 
-            var updatedRating = await _ratingRepository.Update(existing);
+            var updated = await _ratingRepository.Update(existing);
 
-            return updatedRating;
+            return _mapper.Map<RatingViewModel>(updated);
         }
+
 
         public async Task DeleteRating(int id)
         {
-            var rating = await _ratingRepository.GetRatingById(id);
-            if (rating == null)
-                throw new KeyNotFoundException($"Rating {id} introuvable.");
+            var entity = await _ratingRepository.GetRatingById(id);
+            if (entity == null) return;
 
-            await _ratingRepository.Delete(rating);
+            await _ratingRepository.Delete(entity);
         }
     }
 }

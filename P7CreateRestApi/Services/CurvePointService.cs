@@ -16,43 +16,40 @@ namespace P7CreateRestApi.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<CurvePoint>> GetAllCurvePoints()
+        public async Task<IEnumerable<CurvePointViewModel>> GetAllCurvePoints()
         {
-            return await _curvePointRepository.GetAllCurvePoints();
+            var entities = await _curvePointRepository.GetAllCurvePoints();
+            return _mapper.Map<IEnumerable<CurvePointViewModel>>(entities);
         }
 
-        public async Task<CurvePoint?> GetCurvePointById(int id)
+
+        public async Task<CurvePointViewModel?> GetCurvePointById(int id)
         {
             var entity = await _curvePointRepository.GetCurvePointById(id);
-          
-            return entity;
+            return entity == null ? null : _mapper.Map<CurvePointViewModel>(entity);
         }
 
-        public async Task<CurvePoint> SaveCurvePoint(CurvePointViewModel vm)
+        public async Task<CurvePointViewModel> SaveCurvePoint(CurvePointViewModel vm)
         {
             var entity = _mapper.Map<CurvePoint>(vm);
             await _curvePointRepository.SaveCurvePoint(entity);
-            
-            return entity;
+            return _mapper.Map<CurvePointViewModel>(entity);
         }
 
-        public async Task<CurvePoint?> UpdateCurvePoint(CurvePointViewModel vm)
+        public async Task<CurvePointViewModel?> UpdateCurvePoint(CurvePointViewModel vm)
         {
             var existing = await _curvePointRepository.GetCurvePointById(vm.Id);
-            if (existing == null)
-                return null;
-               
-            _mapper.Map(vm, existing);
+            if (existing == null) return null;
 
-            await _curvePointRepository.Update(existing);
-            return existing;
+            _mapper.Map(vm, existing);
+            var updated = await _curvePointRepository.Update(existing);
+            return _mapper.Map<CurvePointViewModel>(updated);
         }
 
         public async Task DeleteCurvePoint(int id)
         {
             var entity = await _curvePointRepository.GetCurvePointById(id);
-            if (entity == null)
-                return;
+            if (entity == null) return;
 
             await _curvePointRepository.Delete(entity);
         }

@@ -5,10 +5,10 @@ namespace P7CreateRestApi.Services
 {
     public interface IRuleService
     {
-        Task<IEnumerable<Rule>> GetAllRules();
-        Task<Rule?> GetRuleById(int id);
-        Task<Rule> SaveRule(RuleViewModel vm);
-        Task<Rule?> UpdateRule(RuleViewModel vm);
+        Task<IEnumerable<RuleViewModel>> GetAllRules();
+        Task<RuleViewModel?> GetRuleById(int id);
+        Task<RuleViewModel> SaveRule(RuleViewModel vm);
+        Task<RuleViewModel?> UpdateRule(RuleViewModel vm);
         Task DeleteRule(int id);
     }
 }

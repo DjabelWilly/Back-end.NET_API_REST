@@ -6,7 +6,7 @@ using P7CreateRestApi.Services;
 namespace P7CreateRestApi.Application.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("curvepoint")]
     public class CurvePointController : ControllerBase
     {
         private readonly ICurvePointService _curvePointService;
@@ -16,6 +16,7 @@ namespace P7CreateRestApi.Application.Controllers
             _curvePointService = curvePointService;
         }
 
+        // -------------------- GET ALL --------------------
         [Authorize(Policy = "UserAccess")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -25,6 +26,7 @@ namespace P7CreateRestApi.Application.Controllers
             return Ok(result);
         }
 
+        // -------------------- GET BY ID --------------------
         [Authorize(Policy = "UserAccess")]
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(CurvePointViewModel), StatusCodes.Status200OK)]
@@ -34,26 +36,29 @@ namespace P7CreateRestApi.Application.Controllers
             var result = await _curvePointService.GetCurvePointById(id);
 
             if (result == null)
-                return NotFound();
+                return NotFound(new { message = $"CurvePoint avec Id={id} non trouvée." });
 
             return Ok(result);
         }
 
-
+        // -------------------- CREATE --------------------
         [Authorize(Policy = "AdminAccess")]
         [HttpPost]
         [ProducesResponseType(typeof(CurvePointViewModel), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> Create([FromBody] CurvePointViewModel vm)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { Message = "Données invalides" });
 
             var created = await _curvePointService.SaveCurvePoint(vm);
 
             return CreatedAtAction(nameof(GetCurvePointById), new { id = created.Id }, created);
         }
 
+        // -------------------- UPDATE --------------------
         [Authorize(Policy = "AdminAccess")]
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -62,22 +67,23 @@ namespace P7CreateRestApi.Application.Controllers
         public async Task<IActionResult> Update(int id, [FromBody] CurvePointViewModel vm)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { Message = "Données invalides" });
 
             if (id != vm.Id || vm.Id == 0)
-                return BadRequest("Id mismatch");
+                return BadRequest(new { message = "L'ID de l'URL ne correspond pas à l'ID de l'objet fourni." });
 
             // Vérification existence pour éviter les 500
-            var updated = await _curvePointService.GetCurvePointById(id);
-           
-            if (updated == null)
-                return NotFound();
+            var exists = await _curvePointService.GetCurvePointById(id);
 
-            await _curvePointService.UpdateCurvePoint(vm);
+            if (exists == null)
+                return NotFound(new { message = $"CurvePoint avec Id={id} non trouvée." });
+
+            var updated = await _curvePointService.UpdateCurvePoint(vm);
 
             return Ok(updated);
         }
 
+        // -------------------- DELETE --------------------
         [Authorize(Policy = "AdminAccess")]
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -86,11 +92,11 @@ namespace P7CreateRestApi.Application.Controllers
         {
             var exists = await _curvePointService.GetCurvePointById(id);
             if (exists == null)
-                return NotFound();
+                return NotFound(new { message = $"CurvePoint avec Id={id} non trouvée." });
 
             await _curvePointService.DeleteCurvePoint(id);
 
-            return NoContent(); // 204 NoContent
+            return NoContent();
 
         }
     }

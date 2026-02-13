@@ -6,7 +6,7 @@ using P7CreateRestApi.Services;
 namespace P7CreateRestApi.Application.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("bidlist")]
     public class BidListController : ControllerBase
     {
         private readonly IBidListService _bidListService;
@@ -16,6 +16,7 @@ namespace P7CreateRestApi.Application.Controllers
             _bidListService = bidListService;
         }
 
+        // -------------------- CREATE --------------------
         [Authorize(Policy = "AdminAccess")]
         [HttpPost]
         [ProducesResponseType(typeof(BidListViewModel), StatusCodes.Status201Created)]
@@ -25,12 +26,13 @@ namespace P7CreateRestApi.Application.Controllers
         public async Task<IActionResult> Create([FromBody] BidListViewModel vm)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Données invalides" });
 
             var created = await _bidListService.SaveBidList(vm);
             return CreatedAtAction(nameof(GetBidById), new { id = created.Id }, created);
         }
 
+        // -------------------- GET BY ID --------------------
         [Authorize(Policy = "UserAccess")]
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(BidListViewModel), StatusCodes.Status200OK)]
@@ -40,36 +42,36 @@ namespace P7CreateRestApi.Application.Controllers
         public async Task<IActionResult> GetBidById(int id)
         {
             var bid = await _bidListService.GetBidId(id);
-
             if (bid == null)
-                return NotFound();
+                return NotFound(new { message = $"BidList avec Id={id} non trouvée." });
 
             return Ok(bid);
         }
 
-
+        // -------------------- UPDATE --------------------
         [Authorize(Policy = "AdminAccess")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(BidListViewModel), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBid(int id, [FromBody] BidListViewModel vm)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Données invalides" });
 
             if (id != vm.Id || vm.Id == 0)
-                return BadRequest();
+                return BadRequest(new { message = "L'ID de l'URL ne correspond pas à l'ID de l'objet fourni." });
+
+            // Vérification existence avant l'update
+            var exists = await _bidListService.GetBidId(id);
+            if (exists == null)
+                return NotFound(new { message = $"BidList avec Id={id} non trouvée." });
 
             var updated = await _bidListService.UpdateBidList(vm);
-
-            if (updated == null)
-                return NotFound();
-
             return Ok(updated);
         }
 
-
+        // -------------------- DELETE --------------------
         [Authorize(Policy = "AdminAccess")]
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -77,15 +79,11 @@ namespace P7CreateRestApi.Application.Controllers
         public async Task<IActionResult> DeleteBid(int id)
         {
             var exists = await _bidListService.GetBidId(id);
-
             if (exists == null)
-                return NotFound();
-            
+                return NotFound(new { message = $"BidList avec Id={id} non trouvée." });
+
             await _bidListService.DeleteBidList(id);
-
-            return NoContent(); // 204 NoContent
+            return NoContent();
         }
-
-
     }
 }

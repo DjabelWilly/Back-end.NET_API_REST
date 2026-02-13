@@ -18,10 +18,10 @@ namespace P7CreateRestApi.Tests
         }
 
         [Fact]
-        public async Task GetCurvePointById_ExistingId_ReturnsOk_WithEntity()
+        public async Task GetCurvePointById_ExistingId_ReturnsOk()
         {
             // Arrange
-            var entity = new CurvePoint
+            var vm = new CurvePointViewModel
             {
                 Id = 1,
                 CurveId = 10,
@@ -30,14 +30,14 @@ namespace P7CreateRestApi.Tests
             };
 
             _serviceMock.Setup(s => s.GetCurvePointById(1))
-                        .ReturnsAsync(entity);
+                        .ReturnsAsync(vm);
 
             // Act
             var result = await _controller.GetCurvePointById(1);
 
             // Assert
             var okResult = result.Should().BeOfType<OkObjectResult>().Which;
-            okResult.Value.Should().Be(entity);
+            okResult.Value.Should().Be(vm);
         }
 
         [Fact]
@@ -45,23 +45,23 @@ namespace P7CreateRestApi.Tests
         {
             // Arrange
             _serviceMock.Setup(s => s.GetCurvePointById(1))
-                        .ReturnsAsync((CurvePoint?)null);
+                        .ReturnsAsync((CurvePointViewModel?)null);
 
             // Act
             var result = await _controller.GetCurvePointById(1);
 
             // Assert
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
         }
 
         [Fact]
         public async Task GetAllCurvePoints_ReturnsOk_WithList()
         {
             // Arrange
-            var list = new List<CurvePoint>
+            var list = new List<CurvePointViewModel>
             {
-                new CurvePoint { Id = 1, CurveId = 10, Term = 1 },
-                new CurvePoint { Id = 2, CurveId = 20, Term = 2 }
+                new CurvePointViewModel { Id = 1, CurveId = 10, Term = 1 },
+                new CurvePointViewModel { Id = 2, CurveId = 20, Term = 2 }
             };
 
             _serviceMock.Setup(s => s.GetAllCurvePoints())
@@ -86,16 +86,8 @@ namespace P7CreateRestApi.Tests
                 CurvePointValue = 100
             };
 
-            var entity = new CurvePoint
-            {
-                Id = 1,
-                CurveId = 10,
-                Term = 5,
-                CurvePointValue = 100
-            };
-
             _serviceMock.Setup(s => s.SaveCurvePoint(vm))
-                        .ReturnsAsync(entity);
+                .ReturnsAsync(vm);
 
             // Act
             var result = await _controller.Create(vm);
@@ -103,8 +95,8 @@ namespace P7CreateRestApi.Tests
             // Assert
             var createdResult = result.Should().BeOfType<CreatedAtActionResult>().Which;
             createdResult.ActionName.Should().Be(nameof(_controller.GetCurvePointById));
-            createdResult.RouteValues!["id"].Should().Be(entity.Id);
-            createdResult.Value.Should().Be(entity);
+            createdResult.RouteValues!["id"].Should().Be(vm.Id);
+            createdResult.Value.Should().Be(vm);
         }
 
         [Fact]
@@ -122,7 +114,7 @@ namespace P7CreateRestApi.Tests
         }
 
         [Fact]
-        public async Task Update_ValidId_ReturnsOk_WithUpdatedEntity()
+        public async Task Update_ValidId_ReturnsOk()
         {
             // Arrange
             var vm = new CurvePointViewModel
@@ -133,26 +125,18 @@ namespace P7CreateRestApi.Tests
                 CurvePointValue = 200
             };
 
-            var entity = new CurvePoint
-            {
-                Id = 1,
-                CurveId = 10,
-                Term = 5,
-                CurvePointValue = 200
-            };
-
             _serviceMock.Setup(s => s.GetCurvePointById(1))
-                        .ReturnsAsync(entity);
+                 .ReturnsAsync(vm);
 
             _serviceMock.Setup(s => s.UpdateCurvePoint(vm))
-                        .ReturnsAsync(entity);
+                        .ReturnsAsync(vm);
 
             // Act
             var result = await _controller.Update(1, vm);
 
             // Assert
             var okResult = result.Should().BeOfType<OkObjectResult>().Which;
-            okResult.Value.Should().Be(entity);
+            okResult.Value.Should().Be(vm);
 
             _serviceMock.Verify(s => s.UpdateCurvePoint(vm), Times.Once);
         }
@@ -177,13 +161,13 @@ namespace P7CreateRestApi.Tests
             var vm = new CurvePointViewModel { Id = 1 };
 
             _serviceMock.Setup(s => s.GetCurvePointById(1))
-                        .ReturnsAsync((CurvePoint?)null);
+                        .ReturnsAsync((CurvePointViewModel?)null);
 
             // Act
             var result = await _controller.Update(1, vm);
 
             // Assert
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
         }
 
         [Fact]
@@ -201,10 +185,10 @@ namespace P7CreateRestApi.Tests
         public async Task Delete_ExistingId_ReturnsNoContent()
         {
             // Arrange
-            var entity = new CurvePoint { Id = 1 };
+            var vm = new CurvePointViewModel { Id = 1 };
 
             _serviceMock.Setup(s => s.GetCurvePointById(1))
-                        .ReturnsAsync(entity);
+                        .ReturnsAsync(vm);
 
             _serviceMock.Setup(s => s.DeleteCurvePoint(1))
                         .Returns(Task.CompletedTask);
@@ -223,13 +207,13 @@ namespace P7CreateRestApi.Tests
         {
             // Arrange
             _serviceMock.Setup(s => s.GetCurvePointById(1))
-                        .ReturnsAsync((CurvePoint?)null);
+                        .ReturnsAsync((CurvePointViewModel?)null);
 
             // Act
             var result = await _controller.Delete(1);
 
             // Assert
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<NotFoundObjectResult>();
         }
     }
 }

@@ -16,38 +16,38 @@ namespace P7CreateRestApi.Services
             _mapper = mapper;
         }
 
-
-        // Récupère le ViewModel (BidListViewModel) depuis le controller et le convertit en Entity (BidList)
-        public async Task<BidList> SaveBidList(BidListViewModel vm)
+        public async Task<BidListViewModel> SaveBidList(BidListViewModel vm)
         {
-            var entity = _mapper.Map<BidList>(vm);
-            await _bidListRepository.SaveBidList(entity);
+            var entity = _mapper.Map<BidList>(vm); // convertit vm en entity
 
-            return entity;
+            await _bidListRepository.SaveBidList(entity); // appele le repo pour persister entity
+
+            return _mapper.Map<BidListViewModel>(entity); // convertit entity en vm et retourne vm  
         }
 
-        // Get(id)
-        public async Task<BidList?> GetBidId(int id)
+        public async Task<BidListViewModel?> GetBidId(int id)
         {
             var entity = await _bidListRepository.GetBidListById(id);
 
-            return entity;
+            return entity == null
+                ? null
+                : _mapper.Map<BidListViewModel>(entity);
         }
 
-        // Mise à jour / modification d'un BidList
-        public async Task<BidList?> UpdateBidList(BidListViewModel vm)
+        public async Task<BidListViewModel?> UpdateBidList(BidListViewModel vm)
         {
             var entity = await _bidListRepository.GetBidListById(vm.Id);
 
             if (entity == null)
                 return null;
 
-            _mapper.Map(vm, entity);
+            _mapper.Map(vm, entity); // convertit vm sur l'objet entity existant
 
-            return await _bidListRepository.Update(entity);
+            var updated = await _bidListRepository.Update(entity);
+
+            return _mapper.Map<BidListViewModel>(updated);  // convertit entity updated en vm et retourne vm
         }
 
-        // Suppression
         public async Task DeleteBidList(int id)
         {
             var entity = await _bidListRepository.GetBidListById(id);
@@ -56,8 +56,7 @@ namespace P7CreateRestApi.Services
                 return;
 
             await _bidListRepository.Delete(entity);
-           
         }
-
     }
 }
+

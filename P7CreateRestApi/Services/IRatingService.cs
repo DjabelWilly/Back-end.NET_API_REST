@@ -5,10 +5,10 @@ namespace P7CreateRestApi.Services
 {
     public interface IRatingService
     {
-        Task<IEnumerable<Rating>> GetAllRatings();
-        Task<Rating?> GetRatingById(int id);
-        Task<Rating> SaveRating(RatingViewModel vm);
-        Task<Rating?> UpdateRating(RatingViewModel vm);
+        Task<IEnumerable<RatingViewModel>> GetAllRatings();
+        Task<RatingViewModel?> GetRatingById(int id);
+        Task<RatingViewModel> SaveRating(RatingViewModel vm);
+        Task<RatingViewModel?> UpdateRating(RatingViewModel vm);
         Task DeleteRating(int id);
     }
 }

@@ -16,39 +16,41 @@ namespace P7CreateRestApi.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Trade>> GetAllTrades()
+        public async Task<IEnumerable<TradeViewModel>> GetAllTrades()
         {
-            return await _repository.GetAllTrades();
+            var list = await _repository.GetAllTrades();
+            return _mapper.Map<IEnumerable<TradeViewModel>>(list);
         }
 
-        public async Task<Trade?> GetTradeById(int id)
+        public async Task<TradeViewModel?> GetTradeById(int id)
         {
-            return await _repository.GetTradeById(id);
+            var entity = await _repository.GetTradeById(id);
+            return entity == null
+                ? null
+                : _mapper.Map<TradeViewModel>(entity);
         }
 
-        public async Task<Trade> SaveTrade(TradeViewModel vm)
+        public async Task<TradeViewModel> SaveTrade(TradeViewModel vm)
         {
             var entity = _mapper.Map<Trade>(vm);
             await _repository.SaveTrade(entity);
-            return entity;
+            return _mapper.Map<TradeViewModel>(entity);
         }
 
-        public async Task<Trade?> UpdateTrade(TradeViewModel vm)
+        public async Task<TradeViewModel?> UpdateTrade(TradeViewModel vm)
         {
             var existing = await _repository.GetTradeById(vm.Id);
-            if (existing == null)
-                throw new KeyNotFoundException($"Trade {vm.Id} introuvable.");
+            if (existing == null) return null;
 
             _mapper.Map(vm, existing);
-            await _repository.UpdateTrade(existing);
-            return existing;
+            var updated = await _repository.UpdateTrade(existing);
+            return _mapper.Map<TradeViewModel>(updated);
         }
 
         public async Task DeleteTrade(int id)
         {
             var existing = await _repository.GetTradeById(id);
-            if (existing == null)
-                throw new KeyNotFoundException($"Trade {id} introuvable.");
+            if (existing == null) return;
 
             await _repository.DeleteTrade(existing);
         }

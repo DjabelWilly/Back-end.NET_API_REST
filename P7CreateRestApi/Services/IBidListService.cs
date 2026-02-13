@@ -6,12 +6,9 @@ namespace P7CreateRestApi.Services
 {
     public interface IBidListService
     {
-        Task<BidList> SaveBidList(BidListViewModel vm);
-
-        Task<BidList?> UpdateBidList(BidListViewModel vm);
-
-        Task<BidList?> GetBidId(int id);
-
+        Task<BidListViewModel> SaveBidList(BidListViewModel vm);
+        Task<BidListViewModel?> GetBidId(int id);
+        Task<BidListViewModel?> UpdateBidList(BidListViewModel vm);
         Task DeleteBidList(int id);
     }
 

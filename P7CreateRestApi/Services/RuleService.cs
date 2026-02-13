@@ -16,43 +16,50 @@ namespace P7CreateRestApi.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Rule>> GetAllRules()
+        public async Task<IEnumerable<RuleViewModel>> GetAllRules()
         {
-            return await _ruleRepository.GetAllRules();
+            {
+                var entities = await _ruleRepository.GetAllRules();
+                return _mapper.Map<IEnumerable<RuleViewModel>>(entities);
+            }
         }
 
-        public async Task<Rule?> GetRuleById(int id)
+        public async Task<RuleViewModel?> GetRuleById(int id)
         {
-            return await _ruleRepository.GetRuleById(id);
+            var entity = await _ruleRepository.GetRuleById(id);
+            return entity == null 
+                ? null 
+                : _mapper.Map<RuleViewModel>(entity);
         }
 
-        public async Task<Rule> SaveRule(RuleViewModel vm)
+        public async Task<RuleViewModel> SaveRule(RuleViewModel vm)
         {
             var entity = _mapper.Map<Rule>(vm);
             await _ruleRepository.SaveRule(entity);
-            return entity;
+            return _mapper.Map<RuleViewModel>(entity);
         }
 
-        public async Task<Rule?> UpdateRule(RuleViewModel vm)
+        public async Task<RuleViewModel?> UpdateRule(RuleViewModel vm)
         {
             var existing = await _ruleRepository.GetRuleById(vm.Id);
             if (existing == null)
-                throw new KeyNotFoundException($"Rule {vm.Id} introuvable.");
+                return null;
 
             _mapper.Map(vm, existing);
 
-            await _ruleRepository.Update(existing);
+            var updated = await _ruleRepository.Update(existing);
 
-            return existing;
+            return _mapper.Map<RuleViewModel>(updated);
         }
 
         public async Task DeleteRule(int id)
         {
-            var rule = await _ruleRepository.GetRuleById(id);
-            if (rule == null)
-                throw new KeyNotFoundException($"Rule {id} introuvable.");
+            var entity = await _ruleRepository.GetRuleById(id);
+            if (entity == null) return;
 
-            await _ruleRepository.Delete(rule);
+            await _ruleRepository.Delete(entity);
         }
+
+
     }
 }
