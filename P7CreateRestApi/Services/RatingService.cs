@@ -25,7 +25,9 @@ namespace P7CreateRestApi.Services
         public async Task<RatingViewModel?> GetRatingById(int id)
         {
             var entity = await _ratingRepository.GetRatingById(id);
-            return entity == null ? null : _mapper.Map<RatingViewModel>(entity);
+            return entity == null 
+                ? null 
+                : _mapper.Map<RatingViewModel>(entity);
         }
 
         public async Task<RatingViewModel> SaveRating(RatingViewModel vm)

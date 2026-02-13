@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Application.Controllers;
 using P7CreateRestApi.Application.ViewModels;
-using P7CreateRestApi.Entities;
 using P7CreateRestApi.Services;
 
 namespace P7CreateRestApi.Tests

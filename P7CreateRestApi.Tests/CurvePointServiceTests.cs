@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using P7CreateRestApi.Application.ViewModels;
+﻿using P7CreateRestApi.Application.ViewModels;
 using P7CreateRestApi.Data.Repositories;
 using P7CreateRestApi.Entities;
 using P7CreateRestApi.Services;
