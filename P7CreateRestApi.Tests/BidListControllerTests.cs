@@ -53,9 +53,11 @@ namespace P7CreateRestApi.Tests
             // Assert
             // createdResult contient donc la réponse HTTP 201 retournée par le controller.
             var createdResult = result.Should().BeOfType<CreatedAtActionResult>().Which;
-
+            //Vérifie que l’action invoquée correspond bien à GetBidById.
             createdResult.ActionName.Should().Be(nameof(_controller.GetBidById));
+            // Vérification de la valeur de l’ID
             createdResult.RouteValues!["id"].Should().Be(vm.Id);
+            // Vérifie la valeur du vm
             createdResult.Value.Should().Be(vm);
         }
 
